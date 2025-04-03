@@ -1,5 +1,8 @@
 ## ERD
-```erDiagram
+
+```mermaid
+
+  erDiagram
 
   USER ||--o{ USER_POINT : has
   USER ||--o{ USER_COUPON : owns
@@ -18,7 +21,7 @@
   USER_POINT {
     VARCHAR user_id FK "회원 ID"
     DECIMAL user_point "잔액"
-}
+  }
 
   POINT_HISTORY {
     INT history_id PK "내역 ID"
