@@ -1,5 +1,6 @@
 package kr.hhplus.be.ecommerce.interfaces.point;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/point")
 public class PointController {
 
-	private final PointService pointService;
+	@Autowired
+	PointService pointService;
 
 	@PostMapping("/charge")
 	public PointResponse chargeUserPoint(@RequestBody PointRequest pointRequest) {
