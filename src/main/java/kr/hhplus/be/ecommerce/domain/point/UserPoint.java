@@ -32,7 +32,8 @@ public class UserPoint {
 		this.userPoint = userPoint;
 	}
 
-	public BigDecimal validate(BigDecimal userPoint) {
+	// 최소, 최대 금액 validation
+	public BigDecimal validateChargePoint(BigDecimal userPoint) {
 		BigDecimal totalPoint = this.userPoint.add(userPoint);
 
 		if (totalPoint.compareTo(MAX_POINT) > 0) {
@@ -46,6 +47,20 @@ public class UserPoint {
 		this.userPoint = totalPoint;
 		
 		return totalPoint;
+	}
+	
+	// 유저 validation
+	public void validateUserPoint() {
+		if(userId == null) {
+			throw new CustomException(ErrorEnum.NOT_FOUND_USER);
+		}
+	}
+	
+	// 금액 비교
+	public void comparePoint(BigDecimal amountToUse) {
+		if(userPoint.compareTo(amountToUse) < 0) {
+			throw new CustomException(ErrorEnum.NOT_FOUND_USER_POINT);
+		}
 	}
 
 }

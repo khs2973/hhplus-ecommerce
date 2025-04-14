@@ -37,7 +37,7 @@ public class PointHistory {
 	private BigDecimal afterPoint;
 	
 	@Column(name = "point_type")
-	private Integer pointType;
+	private String pointType;
 	
 	@Column(name = "cdate")
 	private LocalDateTime cdate;

@@ -96,7 +96,7 @@ public class PointServiceTest {
 
 		when(userRepository.findByUserId(userId)).thenReturn(Optional.of(mock(User.class)));
 		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
-		when(userPoint.validate(chargePoint)).thenThrow(new CustomException(ErrorEnum.CHARGE_POINT_MIN));
+		when(userPoint.validateChargePoint(chargePoint)).thenThrow(new CustomException(ErrorEnum.CHARGE_POINT_MIN));
 
 		assertThatThrownBy(() -> pointService.chargeUserPoint(pointRequest))
 											 .isInstanceOf(CustomException.class)

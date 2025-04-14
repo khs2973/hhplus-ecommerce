@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import kr.hhplus.be.ecommerce.domain.point.PointEnum;
 import kr.hhplus.be.ecommerce.domain.point.PointHistory;
 import kr.hhplus.be.ecommerce.domain.point.PointHistoryRepository;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
@@ -16,18 +17,17 @@ import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import kr.hhplus.be.ecommerce.interfaces.point.PointRequest;
 import kr.hhplus.be.ecommerce.interfaces.point.PointResponse;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class PointService {
 
-	@Autowired
-	UserRepository userRepository;
+	private final UserRepository userRepository;
 
-	@Autowired
-	UserPointRepository userPointRepository;
+	private final UserPointRepository userPointRepository;
 
-	@Autowired
-	PointHistoryRepository pointHistoryRepository;
+	private final PointHistoryRepository pointHistoryRepository;
 
 	@Transactional
 	public PointResponse chargeUserPoint(PointRequest pointRequest) {
@@ -41,16 +41,19 @@ public class PointService {
 
 		UserPoint userPoint = userPointRepository.findByUserId(userId);
 
-		BigDecimal totalPoint = userPoint.validate(chargeAmount);
+		BigDecimal totalPoint = userPoint.validateChargePoint(chargeAmount);
 
-		pointHistoryRepository.save(PointHistory.builder()
+		PointHistory pointHistory = PointHistory.builder()
 												.userId(userId)
 												.beforePoint(userPoint.getUserPoint())
 												.afterPoint(totalPoint)
+												.pointType(PointEnum.USE.name())
 												.cdate(LocalDateTime.now())
-												.build());
-
+												.build();
+		
 		userPointRepository.save(userPoint);
+
+		pointHistoryRepository.save(pointHistory);
 
 		return PointResponse.chargeUserPoint(userId, totalPoint, totalPoint);
 
@@ -61,20 +64,29 @@ public class PointService {
 
 		UserPoint userPoint = userPointRepository.findByUserId(userId);
 
-		if (userPoint == null) {
-			throw new CustomException(ErrorEnum.NOT_FOUND_USER_POINT);
-		}
+		userPoint.validateUserPoint();
+
+		userPoint.validateChargePoint(amountToUse);
 
 		BigDecimal currentPoint = userPoint.getUserPoint();
-
-		if (currentPoint.compareTo(amountToUse) < 0) {
-			throw new CustomException(ErrorEnum.NOT_FOUND_USER_POINT);
-		}
-
+		
 		BigDecimal totalPoint = currentPoint.subtract(amountToUse);
+
+		userPoint.comparePoint(totalPoint);
+		
 		userPoint.setUserPoint(totalPoint);
+		
+		PointHistory pointHistory = PointHistory.builder()
+												.userId(userId)
+												.beforePoint(userPoint.getUserPoint())
+												.afterPoint(totalPoint)
+												.pointType(PointEnum.USE.name())
+												.cdate(LocalDateTime.now())
+												.build();
 
 		userPointRepository.save(userPoint);
+		
+		pointHistoryRepository.save(pointHistory);
 
 		return totalPoint;
 	}
