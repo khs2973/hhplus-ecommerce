@@ -12,7 +12,11 @@ public class ApiResponse<T> {
 	private String code;
 	private String message;
 	private T data;
-
+	
+	public static ApiResponse<Void> success() {
+		return ApiResponse.of("SUCCESS", "성공적으로 처리되었습니다.", null);
+	}
+	
 	public static <T> ApiResponse<T> success(T data) {
 		return ApiResponse.of("SUCCESS", "성공적으로 처리되었습니다.", data);
 	}

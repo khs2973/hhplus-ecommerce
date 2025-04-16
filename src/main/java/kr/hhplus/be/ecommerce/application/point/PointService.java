@@ -3,16 +3,21 @@ package kr.hhplus.be.ecommerce.application.point;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import kr.hhplus.be.ecommerce.domain.point.PointCommand;
 import kr.hhplus.be.ecommerce.domain.point.PointEnum;
 import kr.hhplus.be.ecommerce.domain.point.PointHistory;
 import kr.hhplus.be.ecommerce.domain.point.PointHistoryRepository;
+import kr.hhplus.be.ecommerce.domain.point.PointInfo;
+import kr.hhplus.be.ecommerce.domain.point.PointInfo.Point;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.infrastructure.user.UserRepository;
+import kr.hhplus.be.ecommerce.interfaces.common.ApiResponse;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import kr.hhplus.be.ecommerce.interfaces.point.PointRequest;
@@ -30,65 +35,33 @@ public class PointService {
 	private final PointHistoryRepository pointHistoryRepository;
 
 	@Transactional
-	public PointResponse chargeUserPoint(PointRequest pointRequest) {
+	public Point chargeUserPoint(PointCommand.Charge pointCommand) {
 
-		String userId = pointRequest.getUserId();
+		UserPoint userPoint = userPointRepository.findByUserId(pointCommand.getUserId());
+
+		userPoint.validateChargePoint(pointCommand.getUserPoint());
 		
-		BigDecimal chargeAmount = pointRequest.getUserPoint();
+		PointHistory pointHistory = userPoint.charge(pointCommand.getUserPoint());
 
-		userRepository.findByUserId(userId)
-					  .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_USER));
-
-		UserPoint userPoint = userPointRepository.findByUserId(userId);
-
-		BigDecimal totalPoint = userPoint.validateChargePoint(chargeAmount);
-
-		PointHistory pointHistory = PointHistory.builder()
-												.userId(userId)
-												.beforePoint(userPoint.getUserPoint())
-												.afterPoint(totalPoint)
-												.pointType(PointEnum.USE.name())
-												.cdate(LocalDateTime.now())
-												.build();
-		
 		userPointRepository.save(userPoint);
-
 		pointHistoryRepository.save(pointHistory);
 
-		return PointResponse.chargeUserPoint(userId, totalPoint, totalPoint);
+		return PointInfo.Point.of(userPoint.getUserPoint());
 
 	}
 	
 	@Transactional
-	public BigDecimal usePoint(String userId, BigDecimal amountToUse) {
+	public boolean usePoint(PointCommand.Use pointCommand) {
 
-		UserPoint userPoint = userPointRepository.findByUserId(userId);
+		UserPoint userPoint = userPointRepository.findByUserId(pointCommand.getUserId());
 
-		userPoint.validateUserPoint();
-
-		userPoint.validateChargePoint(amountToUse);
-
-		BigDecimal currentPoint = userPoint.getUserPoint();
-		
-		BigDecimal totalPoint = currentPoint.subtract(amountToUse);
-
-		userPoint.comparePoint(totalPoint);
-		
-		userPoint.setUserPoint(totalPoint);
-		
-		PointHistory pointHistory = PointHistory.builder()
-												.userId(userId)
-												.beforePoint(userPoint.getUserPoint())
-												.afterPoint(totalPoint)
-												.pointType(PointEnum.USE.name())
-												.cdate(LocalDateTime.now())
-												.build();
+		PointHistory history = userPoint.use(pointCommand.getUserPoint());
 
 		userPointRepository.save(userPoint);
 		
-		pointHistoryRepository.save(pointHistory);
+		pointHistoryRepository.save(history);
 
-		return totalPoint;
+		return true;
 	}
 
 }

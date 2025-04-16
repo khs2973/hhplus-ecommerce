@@ -2,6 +2,7 @@ package kr.hhplus.be.ecommerce.interfaces.point;
 
 import java.math.BigDecimal;
 
+import kr.hhplus.be.ecommerce.domain.point.PointInfo;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,23 +10,10 @@ import lombok.Getter;
 @Builder
 public class PointResponse {
 	
-	private String userId;
 	private BigDecimal userPoint;
-	private BigDecimal totalPoint;
 	
-	public static PointResponse chargeUserPoint(String userId, BigDecimal userPoint, BigDecimal totalPoint) {
-		return PointResponse.builder()
-							.userId(userId)
-							.userPoint(userPoint)
-							.totalPoint(totalPoint)
-							.build();
-	}
-		
-	public static PointResponse getUserPoint(String userId, BigDecimal usePoint) {
-		return PointResponse.builder()
-							.userId(userId)
-							.totalPoint(usePoint)
-							.build();
+	public static PointResponse from (PointInfo.Point point) {
+		return new PointResponse(point.getUserPoint());
 	}
 	
 }
