@@ -1,6 +1,7 @@
 package kr.hhplus.be.ecommerce.domain.point;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,23 +33,6 @@ public class UserPoint {
 		this.userPoint = userPoint;
 	}
 
-	// 최소, 최대 금액 validation
-	public BigDecimal validateChargePoint(BigDecimal userPoint) {
-		BigDecimal totalPoint = this.userPoint.add(userPoint);
-
-		if (totalPoint.compareTo(MAX_POINT) > 0) {
-			throw new CustomException(ErrorEnum.CHARGE_POINT_MAX);
-		}
-
-		if (totalPoint.compareTo(MIN_POINT) < 0) {
-			throw new CustomException(ErrorEnum.CHARGE_POINT_MIN);
-		}
-
-		this.userPoint = totalPoint;
-		
-		return totalPoint;
-	}
-	
 	// 유저 validation
 	public void validateUserPoint() {
 		if(userId == null) {
@@ -56,11 +40,63 @@ public class UserPoint {
 		}
 	}
 	
-	// 금액 비교
-	public void comparePoint(BigDecimal amountToUse) {
-		if(userPoint.compareTo(amountToUse) < 0) {
-			throw new CustomException(ErrorEnum.NOT_FOUND_USER_POINT);
+	// 포인트 충전 (유효성 검사 포함)
+	public PointHistory charge(BigDecimal chargePoint) {
+		
+		validateChargePoint(chargePoint);
+
+		BigDecimal beforePoint = this.userPoint;
+		this.userPoint = this.userPoint.add(chargePoint);
+		BigDecimal afterPoint = this.userPoint;
+
+		return PointHistory.builder()
+						   .userId(this.userId)
+						   .beforePoint(beforePoint)
+						   .afterPoint(afterPoint)
+						   .pointType(PointEnum.CHARGE.name())
+						   .cdate(LocalDateTime.now())
+						   .build();
+	}
+
+	// 포인트 사용 (유효성 검사 포함)
+	public PointHistory use(BigDecimal userPoint) {
+		
+		validateEnoughPoint(userPoint);
+
+		BigDecimal beforePoint = this.userPoint;
+		this.userPoint = this.userPoint.subtract(userPoint);
+		BigDecimal afterPoint = this.userPoint;
+
+		return PointHistory.builder()
+						   .userId(this.userId)
+						   .beforePoint(beforePoint)
+						   .afterPoint(afterPoint)
+						   .pointType(PointEnum.USE.name())
+						   .cdate(LocalDateTime.now())
+						   .build();
+	}
+
+	// 최대, 최소 충전 포인트 validation
+	public void validateChargePoint(BigDecimal userPoint) {
+		
+		BigDecimal total = this.userPoint.add(userPoint);
+		
+		if (total.compareTo(MAX_POINT) > 0) {
+			throw new CustomException(ErrorEnum.CHARGE_POINT_MAX);
 		}
+		if (total.compareTo(MIN_POINT) < 0) {
+			throw new CustomException(ErrorEnum.CHARGE_POINT_MIN);
+		}
+		
+	}
+
+	// 포인트가 부족할때 validation
+	public void validateEnoughPoint(BigDecimal useAmount) {
+		
+		if (this.userPoint.compareTo(useAmount) < 0) {
+			throw new CustomException(ErrorEnum.NOT_ENOUGH_POINT);
+		}
+		
 	}
 
 }
