@@ -3,6 +3,7 @@ package kr.hhplus.be.ecommerce.application.point;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,8 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import kr.hhplus.be.ecommerce.domain.point.PointCommand;
 import kr.hhplus.be.ecommerce.domain.point.PointHistory;
 import kr.hhplus.be.ecommerce.domain.point.PointHistoryRepository;
+import kr.hhplus.be.ecommerce.domain.point.PointInfo;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
@@ -47,40 +50,28 @@ public class PointServiceTest {
 	@DisplayName("포인트 충전 성공")
 	void successCharge() {
 
+		// given
 		String userId = "hanghae";
 
-		BigDecimal currentPoint = new BigDecimal(5000);
-		BigDecimal chargePoint = new BigDecimal(7000);
-
+		BigDecimal currentPoint = new BigDecimal("5000");
+		BigDecimal chargePoint = new BigDecimal("7000");
 		BigDecimal totalPoint = currentPoint.add(chargePoint);
 
+		UserPoint userPoint = new UserPoint(userId, currentPoint);
 		PointRequest pointRequest = new PointRequest(userId, chargePoint);
+		PointCommand.Charge pointCommand = pointRequest.toChargeCommand();
 
-		when(userRepository.findByUserId(userId)).thenReturn(Optional.of(new User()));
-		when(userPointRepository.findByUserId(userId)).thenReturn(new UserPoint(userId, currentPoint));
+		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
 
-		PointResponse response = pointService.chargeUserPoint(pointRequest);
+		// when
+		PointInfo.Point resultPoint = pointService.chargeUserPoint(pointCommand);
 
-		assertThat(response.getTotalPoint()).isEqualByComparingTo(totalPoint);
-		assertThat(response.getUserPoint()).isEqualByComparingTo(totalPoint);
-		assertThat(response.getUserId()).isEqualTo(userId);
+		// then
+		assertThat(resultPoint.getUserPoint()).isEqualByComparingTo(totalPoint);
 
-		verify(userPointRepository).save(any(UserPoint.class));
+		verify(userPointRepository).save(userPoint);
 		verify(pointHistoryRepository).save(any(PointHistory.class));
 
-	}
-
-	@Test
-	@DisplayName("유효하지 않은 사용자")
-	void userNotFound() {
-
-		String userId = "notUser";
-		PointRequest pointRequest = new PointRequest(userId, new BigDecimal(5000));
-
-		when(userRepository.findByUserId(userId)).thenReturn(Optional.empty());
-
-		assertThatThrownBy(() -> pointService.chargeUserPoint(pointRequest))
-											 .isInstanceOf(IllegalArgumentException.class).hasMessage("유효하지 않은 사용자입니다.");
 	}
 
 	@Test
@@ -88,58 +79,60 @@ public class PointServiceTest {
 	void failMinChargePoint() {
 
 		String userId = "hanghae";
-		BigDecimal chargePoint = new BigDecimal(2000);
+		BigDecimal chargePoint = new BigDecimal("2000");
 
 		PointRequest pointRequest = new PointRequest(userId, chargePoint);
+		PointCommand.Charge chargeCommand = pointRequest.toChargeCommand();
 
 		UserPoint userPoint = mock(UserPoint.class);
-
-		when(userRepository.findByUserId(userId)).thenReturn(Optional.of(mock(User.class)));
+		
 		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
-		when(userPoint.validateChargePoint(chargePoint)).thenThrow(new CustomException(ErrorEnum.CHARGE_POINT_MIN));
+		doThrow(new CustomException(ErrorEnum.CHARGE_POINT_MIN)).when(userPoint)
+																.validateChargePoint(chargePoint);
 
-		assertThatThrownBy(() -> pointService.chargeUserPoint(pointRequest))
+		assertThatThrownBy(() -> pointService.chargeUserPoint(chargeCommand))
 											 .isInstanceOf(CustomException.class)
 											 .hasMessageContaining(ErrorEnum.CHARGE_POINT_MIN.getMessage());
 	}
-	
+
 	@Test
 	@DisplayName("포인트 사용 성공")
 	void successUserPoint() {
-		
-		String userId = "hanghae";
-		BigDecimal currentPoint = new BigDecimal(5000);
-		BigDecimal amountToUse = new BigDecimal(2000);
 
-		UserPoint userPoint = new UserPoint();
-		userPoint.setUserPoint(currentPoint);
+		String userId = "hanghae";
+		BigDecimal currentPoint = new BigDecimal("5000");
+
+		UserPoint userPoint = new UserPoint(userId, currentPoint);
+		PointRequest pointRequest = new PointRequest(userId, currentPoint);
+		PointCommand.Use useCommand = pointRequest.toUseCommand();
 
 		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
 
-		BigDecimal remainingPoint = pointService.usePoint(userId, amountToUse);
+		boolean result = pointService.usePoint(useCommand);
 
-		assertThat(remainingPoint).isEqualByComparingTo(new BigDecimal(3000));
-		
+		assertThat(result).isTrue();
+
+		verify(userPointRepository).save(userPoint);
+		verify(pointHistoryRepository).save(any(PointHistory.class));
+
 	}
-	
+
 	@Test
 	@DisplayName("포인트 사용 실패 - 포인트 부족")
 	void failUserPoint() {
-		
-		String userId = "hanghae";
-		BigDecimal currentPoint = new BigDecimal(500);
-		BigDecimal amountToUse = new BigDecimal(1000);
 
-		UserPoint userPoint = new UserPoint();
-		userPoint.setUserPoint(currentPoint);
+		String userId = "hanghae";
+		BigDecimal currentPoint = new BigDecimal("500");
+		BigDecimal amountToUse = new BigDecimal("1000");
+
+		UserPoint userPoint = new UserPoint(userId, currentPoint);
+		PointCommand.Use useCommand = PointCommand.Use.of(userId, amountToUse);
 
 		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
 
-		assertThatThrownBy(() -> pointService.usePoint(userId, amountToUse))
+		assertThatThrownBy(() -> pointService.usePoint(useCommand))
 											 .isInstanceOf(CustomException.class)
-											 .hasMessageContaining(ErrorEnum.NOT_FOUND_USER_POINT.getMessage());
+											 .hasMessageContaining(ErrorEnum.NOT_ENOUGH_POINT.getMessage());
 	}
-	
-	
 
 }

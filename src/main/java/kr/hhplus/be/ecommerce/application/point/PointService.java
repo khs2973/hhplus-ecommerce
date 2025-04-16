@@ -28,8 +28,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PointService {
 
-	private final UserRepository userRepository;
-
 	private final UserPointRepository userPointRepository;
 
 	private final PointHistoryRepository pointHistoryRepository;
