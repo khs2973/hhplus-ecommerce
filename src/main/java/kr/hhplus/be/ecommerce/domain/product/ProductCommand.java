@@ -11,7 +11,7 @@ public class ProductCommand {
 	public static class CommandProduct {
 		private final Integer productId;
 		
-		private CommandProduct(Integer productId) {
+		public CommandProduct(Integer productId) {
 			this.productId = productId;
 		}
 		
