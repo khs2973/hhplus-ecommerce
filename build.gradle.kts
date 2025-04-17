@@ -34,6 +34,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+	compileOnly("org.projectlombok:lombok")
+	annotationProcessor("org.projectlombok:lombok")
 
     // DB
 	runtimeOnly("com.mysql:mysql-connector-j")
@@ -44,6 +47,8 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	
+	testImplementation ("org.assertj:assertj-core:3.25.3")
 }
 
 tasks.withType<Test> {
