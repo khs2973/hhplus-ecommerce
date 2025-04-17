@@ -2,8 +2,8 @@ package kr.hhplus.be.ecommerce.application.order;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kr.hhplus.be.ecommerce.domain.order.Order;
@@ -19,79 +19,58 @@ import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.infrastructure.user.UserRepository;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
-import kr.hhplus.be.ecommerce.interfaces.order.OrderRequest;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
-	@Autowired
-	OrderRepository orderRepository;
-	
-	@Autowired
-	OrderHistoryRepository orderHistoryRepository;
-	
-	@Autowired
-	UserRepository userRepository;
-	
-	@Autowired
-	OrderProductRepository orderProductRepository;
-	
-	@Autowired
-	ProductRepository productRepository;
+	private final OrderRepository orderRepository;
+	private final OrderHistoryRepository orderHistoryRepository;
+	private final OrderProductRepository orderProductRepository;
+	private final ProductRepository productRepository;
+	private final UserRepository userRepository;
 
 	public Product validateProduct(Integer productId) {
-		return productRepository.findByProductIdAndState(productId, 1)
+		return productRepository.findByProductId(productId)
 								.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
 	}
-	
-	public Order createOrder(OrderRequest orderRequest, Product product) {
 
-		BigDecimal totalProductPrice = product.getProductPrice()
-											  .multiply(BigDecimal.valueOf(orderRequest.getOrderQuantity()));
+	public User validateUser(String userId) {
+		return userRepository.findByUserId(userId)
+							 .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_USER));
+	}
 
-		BigDecimal totalPrice = totalProductPrice.subtract(orderRequest.getDiscountPrice())
-												 .subtract(orderRequest.getProductPrice());
-
-		if (totalPrice.compareTo(BigDecimal.ZERO) < 0) {
-			totalPrice = BigDecimal.ZERO;
-		}
-
-		User user = userRepository.findByUserId(orderRequest.getUserId())
-								  .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_USER));
-
+	public Order saveOrder(User user, BigDecimal totalPrice) {
 		Order order = Order.builder()
-						   .userId(orderRequest.getUserId())
-						   .totalPrice(totalPrice.intValue())
+						   .userId(user.getUserId())
 						   .address(user.getAddress())
-						   .cdate(LocalDateTime.now())
+						   .totalPrice(totalPrice.intValue())
 						   .orderState(OrderState.ORDERED.getCode())
+						   .cdate(LocalDateTime.now())
 						   .build();
 
 		orderRepository.save(order);
-
-		OrderProduct orderProduct = OrderProduct.builder()
-												.orderId(order.getOrderId())
-												.productId(product.getProductId())
-												.orderQuantity(orderRequest.getOrderQuantity())
-												.discountPrice(orderRequest.getDiscountPrice().intValue())
-												.productPrice(product.getProductPrice())
-												.build();
-
-		orderProductRepository.save(orderProduct);
-
 		return order;
 	}
 
-	public void recordOrderHistory(Order order) {
+	public void saveOrderProducts(Order order, List<OrderProduct> orderProducts) {
+		for (OrderProduct op : orderProducts) {
+			op.setOrderId(order.getOrderId());
+			orderProductRepository.save(op);
+		}
+	}
 
-		OrderHistory orderHistory = OrderHistory.builder()
-												.orderId(order.getOrderId())
-												.userId(order.getUserId())
-												.totalPrice(order.getTotalPrice())
-												.orderState(order.getOrderState())
-												.cdate(LocalDateTime.now())
-												.build();
+	public void saveOrderHistory(Order order) {
+		OrderHistory history = OrderHistory.builder()
+										   .orderId(order.getOrderId())
+										   .userId(order.getUserId())
+										   .totalPrice(order.getTotalPrice())
+										   .orderState(order.getOrderState())
+										   .cdate(LocalDateTime.now())
+										   .build();
 
-		orderHistoryRepository.save(orderHistory);
+		orderHistoryRepository.save(history);
+	
 	}
 }

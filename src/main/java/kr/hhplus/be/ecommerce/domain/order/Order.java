@@ -7,6 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import kr.hhplus.be.ecommerce.domain.product.Product;
+import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
+import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,5 +41,8 @@ public class Order {
 	
 	@Column(name = "order_state")
 	private Integer orderState;
+	
+	
+	
 	
 }

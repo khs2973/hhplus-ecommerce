@@ -1,7 +1,9 @@
 package kr.hhplus.be.ecommerce.interfaces.order;
 
-import java.math.BigDecimal;
+import java.util.List;
 
+import kr.hhplus.be.ecommerce.application.order.OrderCriteria.CriteriaOrderProduct;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderRequest {
-	private Integer opId;
-	private Integer orderId;
-	private Integer productId;
+	
 	private String userId;
-	private Integer orderQuantity;
-	private BigDecimal discountPrice;
-	private BigDecimal productPrice;
-	private BigDecimal usedPoint;
+	private Integer couponId;
+	private List<CriteriaOrderProduct> criteriaOrderProduct;
+	
+	public CommandOrder toCommandOrder() {
+		return CommandOrder.of(userId, couponId, criteriaOrderProduct);
+	}
 }

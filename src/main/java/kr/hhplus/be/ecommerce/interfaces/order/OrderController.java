@@ -7,18 +7,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.hhplus.be.ecommerce.application.order.OrderFacade;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
 import kr.hhplus.be.ecommerce.interfaces.common.ApiResponse;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/order")
 public class OrderController {
 
 	@Autowired
-	OrderFacade orderFacade;
+	private final OrderFacade orderFacade;
 	
 	@PostMapping("/order")
-	public ApiResponse<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
-		return orderFacade.createOrder(orderRequest);
+	public ApiResponse<?> createOrder(@RequestBody OrderRequest orderRequest) {
+		CommandOrder orderCommand = CommandOrder.of(orderRequest.getUserId()
+												  , orderRequest.getCouponId()
+												  , orderRequest.getCriteriaOrderProduct());
+		InfoOrder infoOrder = orderFacade.createOrder(orderCommand);
+		return ApiResponse.success(OrderResponse.from(infoOrder));
 	}
 	
 }

@@ -1,55 +1,89 @@
 package kr.hhplus.be.ecommerce.application.order;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import kr.hhplus.be.ecommerce.application.coupon.CouponService;
+import kr.hhplus.be.ecommerce.application.order.OrderCriteria.CriteriaOrderProduct;
 import kr.hhplus.be.ecommerce.application.point.PointService;
 import kr.hhplus.be.ecommerce.domain.order.Order;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
+import kr.hhplus.be.ecommerce.domain.point.PointCommand;
+import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.product.Product;
+import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.interfaces.common.ApiResponse;
-import kr.hhplus.be.ecommerce.interfaces.order.OrderRequest;
 import kr.hhplus.be.ecommerce.interfaces.order.OrderResponse;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class OrderFacade {
+
+	private final OrderService orderService;
 	
-	@Autowired
-	OrderService orderService;
+	private final PointService pointService;
 	
-	@Autowired
-	PointService pointService;
+	private final UserPointRepository userPointRepository;
+	
+	private final CouponService couponService;
 
 	@Transactional
-	public ApiResponse<OrderResponse> createOrder(OrderRequest orderRequest) {
-		
-		Product product = orderService.validateProduct(orderRequest.getProductId());
+	public InfoOrder createOrder(CommandOrder command) {
 
-		BigDecimal totalProductPrice = product.getProductPrice()
-											  .multiply(BigDecimal.valueOf(orderRequest.getOrderQuantity()));
+		User user = orderService.validateUser(command.getUserId());
 
-		BigDecimal totalPrice = totalProductPrice.subtract(orderRequest.getDiscountPrice())
-												 .subtract(orderRequest.getUsedPoint());
+		BigDecimal totalPrice = BigDecimal.ZERO;
+		List<OrderProduct> orderProductList = new ArrayList<>();
 
-		if (totalPrice.compareTo(BigDecimal.ZERO) < 0) {
-			totalPrice = BigDecimal.ZERO;
+		for (CriteriaOrderProduct item : command.getCriteriaOrderProduct()) {
+			// 상품 조회
+			Product product = orderService.validateProduct(item.getProductId());
+			
+			BigDecimal itemTotal = product.getProductPrice()
+										  .multiply(BigDecimal.valueOf(item.getQuantity()));
+			
+			totalPrice = totalPrice.add(itemTotal);
+
+			// 쿠폰은 전체에 적용하는걸 가정
+			orderProductList.add(OrderProduct.builder().productId(product.getProductId())
+													   .orderQuantity(item.getQuantity())
+													   .discountPrice(0)
+													   .productPrice(product.getProductPrice()).build());
 		}
 
-		BigDecimal remainingPoint = pointService.usePoint(orderRequest.getUserId(), totalPrice);
+		// 쿠폰 할인 적용
+		BigDecimal discount = couponService.applyCoupon(command.getCouponId(), totalPrice);
+		BigDecimal afterCoupon = totalPrice.subtract(discount);
 
-		Order order = orderService.createOrder(orderRequest, product);
+		// 포인트 차감
+		BigDecimal availablePoint = userPointRepository.findByUserId(user.getUserId())
+													   .getUserPoint();
+		BigDecimal usePoint = afterCoupon.min(availablePoint);
+		
+		pointService.usePoint(PointCommand.Use.of(user.getUserId(), usePoint));
 
-		orderService.recordOrderHistory(order);
+		BigDecimal finalPoint = afterCoupon.subtract(usePoint);
 
-		OrderResponse response = new OrderResponse(order.getOrderId()
-												, order.getUserId()
-												, order.getTotalPrice()
-												, remainingPoint
-												, orderRequest.getDiscountPrice()
-												, orderRequest.getUsedPoint());
+		// 주문 저장
+		Order order = orderService.saveOrder(user, finalPoint);
+		orderService.saveOrderProducts(order, orderProductList);
+		orderService.saveOrderHistory(order);
 
-		return ApiResponse.success(response);
+		// 잔여 포인트
+		BigDecimal remainingPoint = availablePoint.subtract(usePoint);
+
+		return InfoOrder.of(order.getOrderId()
+						  , user.getUserId()
+						  , finalPoint
+						  , remainingPoint
+						  , discount
+						  , usePoint);
 	}
 }
