@@ -16,7 +16,7 @@ import kr.hhplus.be.ecommerce.domain.order.OrderState;
 import kr.hhplus.be.ecommerce.domain.product.Product;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
-import kr.hhplus.be.ecommerce.infrastructure.user.UserRepository;
+import kr.hhplus.be.ecommerce.domain.user.UserRepository;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import lombok.RequiredArgsConstructor;

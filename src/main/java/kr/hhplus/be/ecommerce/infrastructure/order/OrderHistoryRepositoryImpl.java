@@ -1,5 +1,7 @@
 package kr.hhplus.be.ecommerce.infrastructure.order;
 
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
 import kr.hhplus.be.ecommerce.domain.order.OrderHistory;
@@ -15,5 +17,10 @@ public class OrderHistoryRepositoryImpl implements OrderHistoryRepository{
 	@Override
 	public void save(OrderHistory orderHistory) {
 		orderHistoryJpaRepository.save(orderHistory);
+	}
+	
+	@Override
+	public List<OrderHistory> findAll() {
+		return orderHistoryJpaRepository.findAll();
 	}
 }

@@ -1,8 +1,6 @@
-package kr.hhplus.be.ecommerce.infrastructure.user;
+package kr.hhplus.be.ecommerce.domain.user;
 
 import java.util.Optional;
-
-import kr.hhplus.be.ecommerce.domain.user.User;
 
 public interface UserRepository {
 

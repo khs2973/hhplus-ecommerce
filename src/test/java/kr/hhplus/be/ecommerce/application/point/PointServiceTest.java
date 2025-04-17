@@ -25,7 +25,7 @@ import kr.hhplus.be.ecommerce.domain.point.PointInfo;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
-import kr.hhplus.be.ecommerce.infrastructure.user.UserRepository;
+import kr.hhplus.be.ecommerce.domain.user.UserRepository;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import kr.hhplus.be.ecommerce.interfaces.point.PointRequest;

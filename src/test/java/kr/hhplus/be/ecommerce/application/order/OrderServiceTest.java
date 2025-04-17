@@ -28,7 +28,7 @@ import kr.hhplus.be.ecommerce.domain.order.OrderRepository;
 import kr.hhplus.be.ecommerce.domain.product.Product;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
-import kr.hhplus.be.ecommerce.infrastructure.user.UserRepository;
+import kr.hhplus.be.ecommerce.domain.user.UserRepository;
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
 
