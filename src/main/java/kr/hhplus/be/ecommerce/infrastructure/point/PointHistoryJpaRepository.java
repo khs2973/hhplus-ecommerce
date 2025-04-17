@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import kr.hhplus.be.ecommerce.domain.point.PointHistory;
 
-@Repository
 public interface PointHistoryJpaRepository extends JpaRepository<PointHistory, Long>{
 
 }

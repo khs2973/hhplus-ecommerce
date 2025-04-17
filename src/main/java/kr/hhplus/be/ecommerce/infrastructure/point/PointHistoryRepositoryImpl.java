@@ -1,6 +1,5 @@
 package kr.hhplus.be.ecommerce.infrastructure.point;
 
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import kr.hhplus.be.ecommerce.domain.point.PointHistory;
@@ -11,11 +10,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PointHistoryRepositoryImpl implements PointHistoryRepository{
 
-	private final PointHistoryRepository pointHistoryRepository;
+	private final PointHistoryJpaRepository pointHistoryJpaRepository;
 	
 	@Override
 	public void save(PointHistory pointHistory) {
-		pointHistoryRepository.save(pointHistory);
+		pointHistoryJpaRepository.save(pointHistory);
 	}
 	
 }

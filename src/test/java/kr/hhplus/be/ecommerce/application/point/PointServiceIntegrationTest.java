@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.domain.point.PointCommand;
@@ -20,9 +19,9 @@ import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 
-@Transactional
-@Testcontainers
+
 @SpringBootTest
+@Transactional
 public class PointServiceIntegrationTest {
 
 	@Autowired
@@ -49,7 +48,17 @@ public class PointServiceIntegrationTest {
 
 		PointInfo.Point result = pointService.chargeUserPoint(chargeCommand);
 
-		assertThat(result.getUserPoint()).isEqualByComparingTo("12000");
+		assertThat(result.getUserPoint()).isEqualByComparingTo("10000");
+	}
+	
+	@Test
+	@DisplayName("최대 금액으로 충전시 실패")
+	void failChargeMaxPoint() {
+		BigDecimal chargePoint = new BigDecimal("99999");
+		PointCommand.Charge chargeCommand = PointCommand.Charge.of(userId, chargePoint);
+		
+		assertThatThrownBy(() -> pointService.chargeUserPoint(chargeCommand)).isInstanceOf(CustomException.class)
+																			 .hasMessage(ErrorEnum.CHARGE_POINT_MAX.getMessage());
 	}
 
 	@Test
@@ -86,7 +95,6 @@ public class PointServiceIntegrationTest {
 		
 		BigDecimal usePoint = new BigDecimal("99999");
 		PointCommand.Use useCommand = PointCommand.Use.of(userId, usePoint);
-		
 		
 		assertThatThrownBy(() -> pointService.usePoint(useCommand)).isInstanceOf(CustomException.class)
 																   .hasMessage(ErrorEnum.NOT_ENOUGH_POINT.getMessage());

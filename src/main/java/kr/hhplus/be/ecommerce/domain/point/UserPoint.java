@@ -79,12 +79,10 @@ public class UserPoint {
 	// 최대, 최소 충전 포인트 validation
 	public void validateChargePoint(BigDecimal userPoint) {
 		
-		BigDecimal total = this.userPoint.add(userPoint);
-		
-		if (total.compareTo(MAX_POINT) > 0) {
+		if (userPoint.compareTo(MAX_POINT) > 0) {
 			throw new CustomException(ErrorEnum.CHARGE_POINT_MAX);
 		}
-		if (total.compareTo(MIN_POINT) < 0) {
+		if (userPoint.compareTo(MIN_POINT) < 0) {
 			throw new CustomException(ErrorEnum.CHARGE_POINT_MIN);
 		}
 		
