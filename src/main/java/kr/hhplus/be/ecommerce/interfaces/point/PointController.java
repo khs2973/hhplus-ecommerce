@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class PointController {
 
 	@Autowired
-	PointService pointService;
+	private final PointService pointService;
 
 	@PostMapping("/charge")
 	public ApiResponse<?> chargeUserPoint(@RequestBody PointRequest pointRequest) {

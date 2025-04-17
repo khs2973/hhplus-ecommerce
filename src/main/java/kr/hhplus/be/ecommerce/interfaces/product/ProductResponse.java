@@ -3,6 +3,7 @@ package kr.hhplus.be.ecommerce.interfaces.product;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,11 +15,16 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProductResponse {
 	
-	Integer productId;
-	String productName;
-	BigDecimal productPrice;
-	Integer stock;
-	Integer productState;
-	LocalDateTime cdate;
+	private Integer productId;
+	private String productName;
+	private BigDecimal productPrice;
+	private Integer stock;
+	
+	public static ProductResponse from (InfoProduct infoProduct) {
+		return new ProductResponse(infoProduct.getProductId()
+								 , infoProduct.getProductName()
+								 , infoProduct.getProductPrice()
+								 , infoProduct.getStock());
+	}
 	
 }
