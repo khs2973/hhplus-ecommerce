@@ -26,9 +26,13 @@ import lombok.RequiredArgsConstructor;
 public class OrderService {
 
 	private final OrderRepository orderRepository;
+	
 	private final OrderHistoryRepository orderHistoryRepository;
+	
 	private final OrderProductRepository orderProductRepository;
+	
 	private final ProductRepository productRepository;
+	
 	private final UserRepository userRepository;
 
 	public Product validateProduct(Integer productId) {
