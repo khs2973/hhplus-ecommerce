@@ -1,9 +1,12 @@
 package kr.hhplus.be.ecommerce.application.point;
 
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.domain.point.PointCommand;
+import kr.hhplus.be.ecommerce.domain.point.PointCommand.Use;
 import kr.hhplus.be.ecommerce.domain.point.PointHistory;
 import kr.hhplus.be.ecommerce.domain.point.PointHistoryRepository;
 import kr.hhplus.be.ecommerce.domain.point.PointInfo;
@@ -20,14 +23,16 @@ public class PointService {
 
 	private final PointHistoryRepository pointHistoryRepository;
 
-	@Transactional
 	public Point chargeUserPoint(PointCommand.Charge pointCommand) {
 
-		UserPoint userPoint = userPointRepository.findByUserId(pointCommand.getUserId());
-
-		userPoint.validateChargePoint(pointCommand.getUserPoint());
+		String userId = pointCommand.getUserId();
+		BigDecimal amount = pointCommand.getUserPoint();
 		
-		PointHistory pointHistory = userPoint.charge(pointCommand.getUserPoint());
+		UserPoint userPoint = userPointRepository.findByUserId(userId);
+
+		userPoint.validateChargePoint(amount);
+		
+		PointHistory pointHistory = userPoint.charge(amount);
 
 		userPointRepository.save(userPoint);
 		pointHistoryRepository.save(pointHistory);
@@ -36,18 +41,24 @@ public class PointService {
 
 	}
 	
-	@Transactional
 	public boolean usePoint(PointCommand.Use pointCommand) {
 
-		UserPoint userPoint = userPointRepository.findByUserId(pointCommand.getUserId());
+		String userId = pointCommand.getUserId();
+		BigDecimal amount = pointCommand.getUserPoint();
+		
+		UserPoint userPoint = userPointRepository.findByUserId(userId);
 
-		PointHistory history = userPoint.use(pointCommand.getUserPoint());
+		PointHistory history = userPoint.use(amount);
 
 		userPointRepository.save(userPoint);
 		
 		pointHistoryRepository.save(history);
 
 		return true;
+	}
+	
+	public UserPoint searchUserPoint(String userId) {
+		return userPointRepository.findByUserId(userId);
 	}
 
 }

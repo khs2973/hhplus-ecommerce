@@ -9,6 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
+import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,4 +45,19 @@ public class Product {
 	
 	@Column(name = "udate")
 	private LocalDateTime udate;
+	
+	// 상품 재고
+	public void validationProductStock(Integer quantity, Integer stock) {
+		
+		if(quantity > stock) {
+			throw new CustomException(ErrorEnum.NOT_ENOUGH_PRODUCT);
+		}
+		
+		this.stock -= quantity;
+		
+	}
+	
+	
+	
+	
 }

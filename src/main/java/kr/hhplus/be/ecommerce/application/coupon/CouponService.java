@@ -35,4 +35,14 @@ public class CouponService {
 
 		return discount;
 	}
+	
+	public Coupon getCoupon(Integer couponId) {
+		
+		Coupon coupon = couponRepository.findById(couponId)
+										.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_COUPON));
+		
+		return coupon;
+	}
+	
+	
 }

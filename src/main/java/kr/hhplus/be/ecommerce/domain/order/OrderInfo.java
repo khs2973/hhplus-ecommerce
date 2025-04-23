@@ -16,33 +16,25 @@ public class OrderInfo {
 		private final String userId;
 		private final BigDecimal finalPoint;
 		private final BigDecimal remainingPoint;
-		private final BigDecimal discount;
-		private final BigDecimal usePoint;
 
 		private InfoOrder(Integer orderId
 						, String userId
 						, BigDecimal finalPoint
-						, BigDecimal remainingPoint
-						, BigDecimal discount
-						, BigDecimal usePoint) {
+						, BigDecimal remainingPoint) {
 			
 			this.orderId = orderId;
 			this.userId = userId;
 			this.finalPoint = finalPoint;
 			this.remainingPoint = remainingPoint;
-			this.discount = discount;
-			this.usePoint = usePoint;
 			
 		}
 
 		public static InfoOrder of(Integer orderId
 								 , String userId
 								 , BigDecimal finalPoint
-								 , BigDecimal remainingPoint
-								 , BigDecimal discount
-								 , BigDecimal usedPoint) {
+								 , BigDecimal remainingPoint) {
 			
-			return new InfoOrder(orderId, userId, finalPoint, remainingPoint, discount, usedPoint);
+			return new InfoOrder(orderId, userId, finalPoint, remainingPoint);
 			
 		}
 		

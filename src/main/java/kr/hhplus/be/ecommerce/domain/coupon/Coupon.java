@@ -1,6 +1,7 @@
 package kr.hhplus.be.ecommerce.domain.coupon;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.DynamicUpdate;
@@ -29,7 +30,7 @@ public class Coupon {
 	private Integer couponId;
 
 	@Column(name = "coupon_type")
-	private Integer couponType;
+	private String couponType;
 
 	@Column(name = "coupon_name")
 	private String couponName;
@@ -51,9 +52,17 @@ public class Coupon {
 
 	// 할인 금액 반환
 	public BigDecimal calculateDiscount(BigDecimal totalPrice) {
+		
 		validateUsable();
-		BigDecimal discountAmount = BigDecimal.valueOf(discount);
-		return discountAmount.min(totalPrice);
+		
+		if(this.couponType.equals(CouponEnum.PERCENT)) {
+			BigDecimal discountRate = BigDecimal.valueOf(this.discount)
+												.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+			return totalPrice.multiply(discountRate);
+		} else {
+			return BigDecimal.valueOf(discount);
+		}
+		
 	}
 
 	// 사용 가능 검증
