@@ -50,7 +50,7 @@ public class OrderFacade {
 		pointService.usePoint(PointCommand.Use.of(userInfo.getUserId(), totalPrice));
 
 		// 실제 결제 금액
-		BigDecimal paymentAmount = totalPrice.subtract(currentUserPoint);
+		BigDecimal paymentAmount = totalPrice;
 		BigDecimal afterUserPoint = currentUserPoint.subtract(totalPrice);
 		
 		// 주문 저장

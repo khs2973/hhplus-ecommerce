@@ -1,7 +1,6 @@
 package kr.hhplus.be.ecommerce.application.order;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +9,7 @@ import org.springframework.stereotype.Service;
 
 import kr.hhplus.be.ecommerce.application.coupon.CouponService;
 import kr.hhplus.be.ecommerce.application.order.OrderCriteria.CriteriaOrderProduct;
-import kr.hhplus.be.ecommerce.application.product.ProductService;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponEnum;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
 import kr.hhplus.be.ecommerce.domain.order.Order;
 import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
 import kr.hhplus.be.ecommerce.domain.order.OrderHistory;
@@ -25,7 +21,6 @@ import kr.hhplus.be.ecommerce.domain.order.OrderState;
 import kr.hhplus.be.ecommerce.domain.product.Product;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
-import kr.hhplus.be.ecommerce.domain.user.UserRepository;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import lombok.RequiredArgsConstructor;
