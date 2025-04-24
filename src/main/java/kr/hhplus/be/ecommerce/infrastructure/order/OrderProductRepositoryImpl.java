@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
@@ -16,7 +15,7 @@ import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
 @RequiredArgsConstructor
 public class OrderProductRepositoryImpl implements OrderProductRepository{
 	
-	private OrderProductJpaRepository orderProductJpaRepository;
+	private final OrderProductJpaRepository orderProductJpaRepository;
 	
 	@Override
 	public void save(OrderProduct orderProduct) {

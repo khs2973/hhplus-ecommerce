@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.DynamicUpdate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,12 +12,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@DynamicUpdate
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "coupon")
 public class Coupon {
@@ -47,7 +48,7 @@ public class Coupon {
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
 
-	@Column(name = "coupont_state")
+	@Column(name = "coupon_state")
 	private Integer couponState;
 
 	// 할인 금액 반환
@@ -55,10 +56,10 @@ public class Coupon {
 		
 		validateUsable();
 		
-		if(this.couponType.equals(CouponEnum.PERCENT)) {
+		if(this.couponType.equals(CouponEnum.PERCENT.getDesc())) {
 			BigDecimal discountRate = BigDecimal.valueOf(this.discount)
-												.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-			return totalPrice.multiply(discountRate);
+												.divide(BigDecimal.valueOf(100));
+			return totalPrice.multiply(BigDecimal.ONE.subtract(discountRate));
 		} else {
 			return BigDecimal.valueOf(discount);
 		}
@@ -68,7 +69,7 @@ public class Coupon {
 	// 사용 가능 검증
 	public void validateUsable() {
 
-		if (this.couponState == 1) {
+		if (this.couponState == 2) {
 			throw new CustomException(ErrorEnum.ALREADY_USED_COUPON);
 		}
 

@@ -51,7 +51,7 @@ erDiagram
 
   COUPON_STOCK {
     INT coupon_id PK, FK "쿠폰 ID"
-    INT coupont_stock "쿠폰 재고"
+    INT coupon_stock "쿠폰 재고"
   }
 
   USER_COUPON {
