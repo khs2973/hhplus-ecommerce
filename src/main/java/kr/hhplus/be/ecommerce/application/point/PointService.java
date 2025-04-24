@@ -6,13 +6,14 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.domain.point.PointCommand;
-import kr.hhplus.be.ecommerce.domain.point.PointCommand.Use;
 import kr.hhplus.be.ecommerce.domain.point.PointHistory;
 import kr.hhplus.be.ecommerce.domain.point.PointHistoryRepository;
 import kr.hhplus.be.ecommerce.domain.point.PointInfo;
 import kr.hhplus.be.ecommerce.domain.point.PointInfo.Point;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
+import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
+import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,12 +42,15 @@ public class PointService {
 
 	}
 	
+	@Transactional
 	public boolean usePoint(PointCommand.Use pointCommand) {
 
 		String userId = pointCommand.getUserId();
 		BigDecimal amount = pointCommand.getUserPoint();
 		
-		UserPoint userPoint = userPointRepository.findByUserId(userId);
+//		UserPoint userPoint = userPointRepository.findByUserId(userId);
+		UserPoint userPoint = userPointRepository.findByUserIdForUpdate(userId)
+												 .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_USER));
 
 		PointHistory history = userPoint.use(amount);
 
