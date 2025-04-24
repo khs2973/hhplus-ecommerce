@@ -42,12 +42,6 @@ public class OrderService {
 	
 	private final ProductRepository productRepository;
 	
-	private final UserRepository userRepository;
-	
-	private final ProductService productService;
-	
-	private final CouponRepository couponRepository;
-	
 	private final CouponService couponService;
 
 	public Product getProduct(Integer productId) {
