@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserCouponRepositoryImpl implements UserCouponRepository{
 	
-	private UserCouponJpaRepository userCouponJpaRepository;
+	private final UserCouponJpaRepository userCouponJpaRepository;
 	
 	@Override
 	public void save(UserCoupon userCoupon) {

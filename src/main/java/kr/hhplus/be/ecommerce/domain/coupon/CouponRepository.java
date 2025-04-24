@@ -6,5 +6,5 @@ public interface CouponRepository {
 	
 	Optional<Coupon> findById(Integer couponId);
 	void save(Coupon coupon);
-	
+	Optional<Coupon> findByIdForUpdate(Integer couponId);
 }

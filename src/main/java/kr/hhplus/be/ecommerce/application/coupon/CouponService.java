@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand.CommandCoupon;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
@@ -51,11 +52,13 @@ public class CouponService {
 		return coupon;
 	}
 	
+	@Transactional
 	public Boolean createCoupon(CommandCoupon command) {
 		
-		Coupon coupon = couponRepository.findById(command.getCouponId())
+//		Coupon coupon = couponRepository.findById(command.getCouponId())
+//										.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_COUPON));
+		Coupon coupon = couponRepository.findByIdForUpdate(command.getCouponId())
 										.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_COUPON));
-		
 		coupon.stockCheck();
 		
 		UserCoupon userCoupon = UserCoupon.builder()
