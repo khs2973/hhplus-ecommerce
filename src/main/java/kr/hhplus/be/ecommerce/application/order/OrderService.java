@@ -84,12 +84,14 @@ public class OrderService {
 		List<OrderProduct> orderProducts = new ArrayList<>();
 		
 		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
-			
+
 			// 쿠폰 조회
 			Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
 			
 			// 상품 조회
-			Product product = getProduct(criteria.getProductId());
+//			Product product = getProduct(criteria.getProductId());
+			Product product = productRepository.findByProductIdForUpdate(criteria.getProductId())
+											   .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
 			
 			// 사용자 요청 수량과 상품 재고 검증
 			product.validationProductStock(criteria.getQuantity(), product.getStock());
