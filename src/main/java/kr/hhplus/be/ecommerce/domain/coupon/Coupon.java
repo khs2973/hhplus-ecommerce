@@ -84,5 +84,13 @@ public class Coupon {
 		this.couponState = 1;
 		this.couponStock -= 1;
 	}
+	
+	public void stockCheck() {
+		if(this.couponStock <= 0) {
+			throw new CustomException(ErrorEnum.COUPON_STOCK_EMPTY);
+		}
+		
+		this.couponStock -= 1;
+	}
 
 }
