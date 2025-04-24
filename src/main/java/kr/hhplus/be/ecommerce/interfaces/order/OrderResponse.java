@@ -17,14 +17,10 @@ public class OrderResponse {
 	private Integer orderId;
 	private String userId;
 	private BigDecimal remainingPoint;
-	private BigDecimal discountPrice;
-	private BigDecimal usePoint;
 
 	public static OrderResponse from (InfoOrder infoOrder) {
 		return new OrderResponse(infoOrder.getOrderId()
 							   , infoOrder.getUserId()
-							   , infoOrder.getRemainingPoint()
-							   , infoOrder.getDiscount()
-							   , infoOrder.getUsePoint());
+							   , infoOrder.getRemainingPoint());
 	}
 }

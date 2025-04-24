@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderHistoryRepositoryImpl implements OrderHistoryRepository{
 
-	private OrderHistoryJpaRepository orderHistoryJpaRepository;
+	private final OrderHistoryJpaRepository orderHistoryJpaRepository;
 	
 	@Override
 	public void save(OrderHistory orderHistory) {

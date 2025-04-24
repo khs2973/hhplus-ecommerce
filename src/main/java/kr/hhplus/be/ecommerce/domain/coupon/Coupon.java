@@ -1,9 +1,8 @@
 package kr.hhplus.be.ecommerce.domain.coupon;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
-
-import org.hibernate.annotations.DynamicUpdate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,12 +12,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@DynamicUpdate
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "coupon")
 public class Coupon {
@@ -29,7 +31,7 @@ public class Coupon {
 	private Integer couponId;
 
 	@Column(name = "coupon_type")
-	private Integer couponType;
+	private String couponType;
 
 	@Column(name = "coupon_name")
 	private String couponName;
@@ -46,20 +48,28 @@ public class Coupon {
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
 
-	@Column(name = "coupont_state")
+	@Column(name = "coupon_state")
 	private Integer couponState;
 
 	// 할인 금액 반환
 	public BigDecimal calculateDiscount(BigDecimal totalPrice) {
+		
 		validateUsable();
-		BigDecimal discountAmount = BigDecimal.valueOf(discount);
-		return discountAmount.min(totalPrice);
+		
+		if(this.couponType.equals(CouponEnum.PERCENT.getDesc())) {
+			BigDecimal discountRate = BigDecimal.valueOf(this.discount)
+												.divide(BigDecimal.valueOf(100));
+			return totalPrice.multiply(BigDecimal.ONE.subtract(discountRate));
+		} else {
+			return BigDecimal.valueOf(discount);
+		}
+		
 	}
 
 	// 사용 가능 검증
 	public void validateUsable() {
 
-		if (this.couponState == 1) {
+		if (this.couponState == 2) {
 			throw new CustomException(ErrorEnum.ALREADY_USED_COUPON);
 		}
 
@@ -72,6 +82,14 @@ public class Coupon {
 	// 쿠폰 사용처리
 	public void markAsUsed() {
 		this.couponState = 1;
+		this.couponStock -= 1;
+	}
+	
+	public void stockCheck() {
+		if(this.couponStock <= 0) {
+			throw new CustomException(ErrorEnum.COUPON_STOCK_EMPTY);
+		}
+		
 		this.couponStock -= 1;
 	}
 

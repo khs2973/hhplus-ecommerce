@@ -59,12 +59,12 @@ public class UserPoint {
 	}
 
 	// 포인트 사용 (유효성 검사 포함)
-	public PointHistory use(BigDecimal userPoint) {
+	public PointHistory use(BigDecimal amount) {
 		
-		validateEnoughPoint(userPoint);
+		validateEnoughPoint(amount);
 
 		BigDecimal beforePoint = this.userPoint;
-		this.userPoint = this.userPoint.subtract(userPoint);
+		this.userPoint = this.userPoint.subtract(amount);
 		BigDecimal afterPoint = this.userPoint;
 
 		return PointHistory.builder()
@@ -77,12 +77,12 @@ public class UserPoint {
 	}
 
 	// 최대, 최소 충전 포인트 validation
-	public void validateChargePoint(BigDecimal userPoint) {
+	public void validateChargePoint(BigDecimal amount) {
 		
-		if (userPoint.compareTo(MAX_POINT) > 0) {
+		if (amount.compareTo(MAX_POINT) > 0) {
 			throw new CustomException(ErrorEnum.CHARGE_POINT_MAX);
 		}
-		if (userPoint.compareTo(MIN_POINT) < 0) {
+		if (amount.compareTo(MIN_POINT) < 0) {
 			throw new CustomException(ErrorEnum.CHARGE_POINT_MIN);
 		}
 		

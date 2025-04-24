@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import kr.hhplus.be.ecommerce.application.user.UserService;
 import kr.hhplus.be.ecommerce.domain.order.Order;
 import kr.hhplus.be.ecommerce.domain.order.OrderHistory;
 import kr.hhplus.be.ecommerce.domain.order.OrderHistoryRepository;
@@ -49,6 +50,9 @@ public class OrderServiceTest {
 	
 	@Mock
 	private UserRepository userRepository;
+	
+	@Mock
+	private UserService userService;
 
 	@Test
 	@DisplayName("상품 조회 성공")
@@ -62,7 +66,7 @@ public class OrderServiceTest {
 
 		when(productRepository.findByProductId(1)).thenReturn(Optional.of(product));
 
-		Product result = orderService.validateProduct(1);
+		Product result = orderService.getProduct(1);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getProductName()).isEqualTo("상품");
@@ -74,7 +78,7 @@ public class OrderServiceTest {
 		User user = new User("hanghae", "서울시 광진구", LocalDateTime.now());
 		when(userRepository.findByUserId("hanghae")).thenReturn(Optional.of(user));
 
-		User result = orderService.validateUser("hanghae");
+		User result = userService.getUser("hanghae");
 
 		assertThat(result.getAddress()).isEqualTo("서울시 광진구");
 	}

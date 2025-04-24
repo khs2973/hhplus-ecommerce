@@ -5,6 +5,5 @@ import org.springframework.stereotype.Repository;
 
 import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
 
-@Repository
 public interface OrderProductJpaRepository extends JpaRepository<OrderProduct, Long>{
 }

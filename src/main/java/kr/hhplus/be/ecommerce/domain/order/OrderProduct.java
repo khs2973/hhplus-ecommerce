@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,7 @@ import lombok.NoArgsConstructor;
 public class OrderProduct {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "op_id")
 	private Integer opId;
 
@@ -29,11 +32,14 @@ public class OrderProduct {
 	@Column(name = "product_id")
 	private Integer productId;
 	
+	@Column(name = "coupon_id")
+	private Integer couponId;
+	
 	@Column(name = "order_quantity")
 	private Integer orderQuantity;
 	
-	@Column(name = "discount_price")
-	private Integer discountPrice;
+	@Column(name = "totalPrice")
+	private BigDecimal totalPrice;
 	
 	@Column(name = "product_price")
 	private BigDecimal productPrice;

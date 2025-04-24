@@ -1,114 +1,138 @@
 package kr.hhplus.be.ecommerce.application.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import jakarta.transaction.Transactional;
-import kr.hhplus.be.ecommerce.domain.order.Order;
-import kr.hhplus.be.ecommerce.domain.order.OrderHistory;
-import kr.hhplus.be.ecommerce.domain.order.OrderHistoryRepository;
-import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
-import kr.hhplus.be.ecommerce.domain.order.OrderProductRepository;
-import kr.hhplus.be.ecommerce.domain.order.OrderRepository;
-import kr.hhplus.be.ecommerce.domain.order.OrderState;
+import kr.hhplus.be.ecommerce.application.order.OrderCriteria.CriteriaOrderProduct;
+import kr.hhplus.be.ecommerce.application.product.ProductService;
+import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponEnum;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
+import kr.hhplus.be.ecommerce.domain.point.UserPoint;
+import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.product.Product;
+import kr.hhplus.be.ecommerce.domain.product.ProductCommand.CommandProduct;
+import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
+import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.domain.user.UserRepository;
+import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
+import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 
 @SpringBootTest
 @Transactional
 public class OrderServiceIntegrationTest {
 
 	@Autowired
-	private OrderService orderService;
-
-	@Autowired
-	private OrderRepository orderRepository;
-
-	@Autowired
-	private OrderProductRepository orderProductRepository;
-
-	@Autowired
-	private OrderHistoryRepository orderHistoryRepository;
-
-	@Autowired
 	private ProductRepository productRepository;
-
-	@Test
-	@DisplayName("상품 조회 통합 테스트 - 성공")
-	void validateProduct_success() {
+	
+	@Autowired
+	private ProductService productService;
+	
+	@Autowired
+	private CouponRepository couponRepository;
+	
+	@Autowired
+	private UserPointRepository userPointRepository;
+	
+	@Autowired
+	private OrderFacade orderFacade;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	private String userId;
+	private Integer productId;
+	private Integer couponId;
+	
+	@BeforeEach
+	void setUp() {
+		
+		User user = User.builder()
+						.userId("hanghae")
+						.address("서울")
+						.cdate(LocalDateTime.now())
+						.build();
+		
+		userRepository.save(user);
+		userId = user.getUserId();
 		
 		Product product = Product.builder()
-								 .productName("테스트 상품")
-								 .productPrice(BigDecimal.valueOf(10000))
-								 .stock(50)
+								 .productName("상품1")
+								 .productPrice(new BigDecimal("10000"))
+								 .stock(10)
+								 .cdate(LocalDateTime.now())
+								 .productState(1) 
 								 .build();
-		productRepository.save(product);
 
-		Product result = orderService.validateProduct(product.getProductId());
+		productRepository.save(product);
+		productId = product.getProductId();
+
+		Coupon coupon = Coupon.builder()
+							  .couponName("10% 할인 쿠폰")
+							  .discount(10)
+							  .couponType(CouponEnum.PERCENT.getDesc())
+							  .couponStock(10)
+							  .couponState(1)
+							  .startDate(LocalDateTime.now())
+							  .endDate(LocalDateTime.now().plusDays(3))
+							  .build();
+
+		couponRepository.save(coupon);
+		couponId = coupon.getCouponId();
+		
+		userPointRepository.save(new UserPoint(userId, new BigDecimal("10000")));
+	}
+
+	@Test
+	@DisplayName("상품 조회 성공 (상품이 존재할 경우)")
+	void successGetProduct() {
+		
+		CommandProduct command = new CommandProduct(productId);
+
+		InfoProduct result = productService.getProduct(command);
 
 		assertThat(result).isNotNull();
-		assertThat(result.getProductName()).isEqualTo("테스트 상품");
+		assertThat(result.getProductId()).isEqualTo(productId);
+		assertThat(result.getProductName()).isEqualTo("상품1");
+		
 	}
 
 	@Test
-	@DisplayName("주문 상품 저장 통합 테스트 - 성공")
-	void saveOrderProducts_success() {
-		// given
-		Order order = Order.builder()
-						   .userId("hanghae")
-						   .totalPrice(20000)
-						   .orderState(OrderState.ORDERED.getCode())
-						   .cdate(LocalDateTime.now())
-						   .address("서울시").build();
+	@DisplayName("상품 조회 실패 (상품이 없을 경우)")
+	void failGetProduct_notFound() {
 		
-		orderRepository.save(order);
+		CommandProduct command = new CommandProduct(99);
 
-		OrderProduct orderProduct1 = OrderProduct.builder()
-												 .productId(1)
-												 .orderQuantity(2)
-												 .productPrice(BigDecimal.valueOf(5000))
-												 .build();
-
-		OrderProduct orderProduct2 = OrderProduct.builder()
-												 .productId(2)
-												 .orderQuantity(1)
-												 .productPrice(BigDecimal.valueOf(10000))
-												 .build();
-
-		orderService.saveOrderProducts(order, List.of(orderProduct1, orderProduct2));
-
-		List<OrderProduct> orderProducts = orderProductRepository.findAll();
-		assertThat(orderProducts).hasSize(2);
-		assertThat(orderProducts.get(0).getOrderId()).isEqualTo(order.getOrderId());
+		assertThatThrownBy(() -> productService.getProduct(command)).isInstanceOf(CustomException.class)
+																	.hasMessageContaining(ErrorEnum.NOT_FOUND_PRODUCT.getMessage());
 	}
-
+	
+	
 	@Test
-	@DisplayName("주문 이력 저장 통합 테스트 - 성공")
-	void saveOrderHistory_success() {
-		// given
-		Order order = Order.builder()
-						   .userId("hanghae")
-						   .totalPrice(10000)
-						   .orderState(OrderState.ORDERED.getCode())
-						   .address("서울")
-						   .cdate(LocalDateTime.now())
-						   .build();
+	@DisplayName("상품 주문 쿠폰 사용")
+	void createOrderCoupon() {
+
+		CommandOrder command = CommandOrder.of(userId, couponId, List.of(new CriteriaOrderProduct(productId, 1)));
+
+		InfoOrder result = orderFacade.createOrder(command);
+
+		assertThat(result.getFinalPoint()).isEqualByComparingTo("9000");
+		assertThat(result.getRemainingPoint()).isEqualByComparingTo("1000");
 		
-		orderRepository.save(order);
-
-		orderService.saveOrderHistory(order);
-
-		List<OrderHistory> histories = orderHistoryRepository.findAll();
-		assertThat(histories).hasSize(1);
-		assertThat(histories.get(0).getOrderId()).isEqualTo(order.getOrderId());
 	}
+	
 }

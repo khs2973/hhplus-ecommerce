@@ -1,5 +1,7 @@
 package kr.hhplus.be.ecommerce.application.point;
 
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -10,6 +12,8 @@ import kr.hhplus.be.ecommerce.domain.point.PointInfo;
 import kr.hhplus.be.ecommerce.domain.point.PointInfo.Point;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
+import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
+import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,14 +24,16 @@ public class PointService {
 
 	private final PointHistoryRepository pointHistoryRepository;
 
-	@Transactional
 	public Point chargeUserPoint(PointCommand.Charge pointCommand) {
 
-		UserPoint userPoint = userPointRepository.findByUserId(pointCommand.getUserId());
-
-		userPoint.validateChargePoint(pointCommand.getUserPoint());
+		String userId = pointCommand.getUserId();
+		BigDecimal amount = pointCommand.getUserPoint();
 		
-		PointHistory pointHistory = userPoint.charge(pointCommand.getUserPoint());
+		UserPoint userPoint = userPointRepository.findByUserId(userId);
+
+		userPoint.validateChargePoint(amount);
+		
+		PointHistory pointHistory = userPoint.charge(amount);
 
 		userPointRepository.save(userPoint);
 		pointHistoryRepository.save(pointHistory);
@@ -39,15 +45,24 @@ public class PointService {
 	@Transactional
 	public boolean usePoint(PointCommand.Use pointCommand) {
 
-		UserPoint userPoint = userPointRepository.findByUserId(pointCommand.getUserId());
+		String userId = pointCommand.getUserId();
+		BigDecimal amount = pointCommand.getUserPoint();
+		
+//		UserPoint userPoint = userPointRepository.findByUserId(userId);
+		UserPoint userPoint = userPointRepository.findByUserIdForUpdate(userId)
+												 .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_USER));
 
-		PointHistory history = userPoint.use(pointCommand.getUserPoint());
+		PointHistory history = userPoint.use(amount);
 
 		userPointRepository.save(userPoint);
 		
 		pointHistoryRepository.save(history);
 
 		return true;
+	}
+	
+	public UserPoint searchUserPoint(String userId) {
+		return userPointRepository.findByUserId(userId);
 	}
 
 }
