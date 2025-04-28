@@ -1,6 +1,5 @@
 package kr.hhplus.be.ecommerce.application.product;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kr.hhplus.be.ecommerce.domain.product.Product;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductService {
 
-	@Autowired
 	private final ProductRepository productRepository;
 
 	// 상품 조회
