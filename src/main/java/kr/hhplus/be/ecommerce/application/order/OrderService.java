@@ -11,7 +11,7 @@ import kr.hhplus.be.ecommerce.application.coupon.CouponService;
 import kr.hhplus.be.ecommerce.application.order.OrderCriteria.CriteriaOrderProduct;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
 import kr.hhplus.be.ecommerce.domain.order.Order;
-import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand;
 import kr.hhplus.be.ecommerce.domain.order.OrderHistory;
 import kr.hhplus.be.ecommerce.domain.order.OrderHistoryRepository;
 import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
@@ -79,7 +79,7 @@ public class OrderService {
 	
 	}
 	
-	public List<OrderProduct> orderProducts(CommandOrder commandOrder) {
+	public List<OrderProduct> orderProducts(OrderCommand.Create commandOrder) {
 		
 		List<OrderProduct> orderProducts = new ArrayList<>();
 		
@@ -110,7 +110,7 @@ public class OrderService {
 		return orderProducts;
 		
 	}
-	public List<OrderProduct> orderProductsLock(CommandOrder commandOrder) {
+	public List<OrderProduct> orderProductsLock(OrderCommand.Create commandOrder) {
 		
 		List<OrderProduct> orderProducts = new ArrayList<>();
 		

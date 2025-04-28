@@ -21,7 +21,7 @@ import kr.hhplus.be.ecommerce.application.order.OrderCriteria.CriteriaOrderProdu
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponEnum;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
-import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.product.Product;
@@ -96,7 +96,7 @@ public class OrderConcurrencyTest {
 
 		Runnable task1 = () -> {
 			try {
-				CommandOrder command = CommandOrder.of("hanghae_basic", couponId,
+				OrderCommand.Create command = OrderCommand.Create.of("hanghae_basic", couponId,
 						List.of(new CriteriaOrderProduct(productId, 1)));
 				orderFacade.createOrder(command);
 			} catch (Throwable t) {
@@ -108,7 +108,7 @@ public class OrderConcurrencyTest {
 
 		Runnable task2 = () -> {
 			try {
-				CommandOrder command = CommandOrder.of("hanghae_advanced", couponId,
+				OrderCommand.Create command = OrderCommand.Create.of("hanghae_advanced", couponId,
 						List.of(new CriteriaOrderProduct(productId, 1)));
 				orderFacade.createOrder(command);
 			} catch (Throwable t) {

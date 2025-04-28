@@ -10,7 +10,7 @@ import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.application.point.PointService;
 import kr.hhplus.be.ecommerce.application.user.UserService;
 import kr.hhplus.be.ecommerce.domain.order.Order;
-import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand;
 import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
 import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
 import kr.hhplus.be.ecommerce.domain.point.PointCommand;
@@ -29,7 +29,7 @@ public class OrderFacade {
 	private final UserService userService;
 
 	@Transactional
-	public InfoOrder createOrder(CommandOrder commandOrder) {
+	public InfoOrder createOrder(OrderCommand.Create commandOrder) {
 
 		// 회원 조회
 		User userInfo = userService.getUser(commandOrder.getUserId());

@@ -19,7 +19,7 @@ import kr.hhplus.be.ecommerce.application.product.ProductService;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponEnum;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
-import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand;
 import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
@@ -126,7 +126,7 @@ public class OrderServiceIntegrationTest {
 	@DisplayName("상품 주문 쿠폰 사용")
 	void createOrderCoupon() {
 
-		CommandOrder command = CommandOrder.of(userId, couponId, List.of(new CriteriaOrderProduct(productId, 1)));
+		OrderCommand.Create command = OrderCommand.Create.of(userId, couponId, List.of(new CriteriaOrderProduct(productId, 1)));
 
 		InfoOrder result = orderFacade.createOrder(command);
 
