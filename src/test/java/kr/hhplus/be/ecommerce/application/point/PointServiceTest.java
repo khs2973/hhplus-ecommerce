@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -25,12 +24,10 @@ import kr.hhplus.be.ecommerce.domain.point.PointHistoryRepository;
 import kr.hhplus.be.ecommerce.domain.point.PointInfo;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
-import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.domain.user.UserRepository;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
 import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 import kr.hhplus.be.ecommerce.interfaces.point.PointRequest;
-import kr.hhplus.be.ecommerce.interfaces.point.PointResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class PointServiceTest {
@@ -51,7 +48,6 @@ public class PointServiceTest {
 	@DisplayName("포인트 충전 성공")
 	void successCharge() {
 
-		// given
 		String userId = "hanghae";
 
 		BigDecimal currentPoint = new BigDecimal("5000");
@@ -64,10 +60,8 @@ public class PointServiceTest {
 
 		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
 
-		// when
 		PointInfo.Point resultPoint = pointService.chargeUserPoint(pointCommand);
 
-		// then
 		assertThat(resultPoint.getUserPoint()).isEqualByComparingTo(totalPoint);
 
 		verify(userPointRepository).save(userPoint);

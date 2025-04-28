@@ -124,7 +124,6 @@ public class OrderConcurrencyTest {
 
 		latch.await();
 
-		// then
 		assertThat(errors).hasSize(1);
 		assertThat(errors.get(0).getMessage()).contains(ErrorEnum.NOT_ENOUGH_PRODUCT.getMessage());
 	}

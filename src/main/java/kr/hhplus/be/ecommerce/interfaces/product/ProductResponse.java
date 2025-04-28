@@ -1,7 +1,6 @@
 package kr.hhplus.be.ecommerce.interfaces.product;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
 import lombok.AllArgsConstructor;
