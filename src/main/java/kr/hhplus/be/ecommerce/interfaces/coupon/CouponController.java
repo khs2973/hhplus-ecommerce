@@ -22,7 +22,7 @@ public class CouponController {
 	@PostMapping("/createCoupon")
 	public ApiResponse<?> createCoupon(@RequestBody CoupontRequest couponRequest) {
 		CommandCoupon couponCommand = CommandCoupon.of(couponRequest.getUserId(), couponRequest.getCouponId());
-		couponService.createCoupon(couponCommand);
+		couponService.createCouponLock(couponCommand);
 		return ApiResponse.success();
 	}
 }

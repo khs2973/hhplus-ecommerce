@@ -53,10 +53,8 @@ public class CouponService {
 	}
 	
 	@Transactional
-	public Boolean createCoupon(CommandCoupon command) {
+	public Boolean createCouponLock(CommandCoupon command) {
 		
-//		Coupon coupon = couponRepository.findById(command.getCouponId())
-//										.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_COUPON));
 		Coupon coupon = couponRepository.findByIdForUpdate(command.getCouponId())
 										.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_COUPON));
 		coupon.stockCheck();

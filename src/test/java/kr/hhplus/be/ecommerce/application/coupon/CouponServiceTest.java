@@ -42,9 +42,9 @@ public class CouponServiceTest {
 		CommandCoupon command = new CommandCoupon("hanghae", 1);
 		Coupon coupon = Mockito.mock(Coupon.class);
 
-		when(couponRepository.findById(1)).thenReturn(Optional.of(coupon));
+		when(couponRepository.findByIdForUpdate(1)).thenReturn(Optional.of(coupon));
 
-		Boolean result = couponService.createCoupon(command);
+		Boolean result = couponService.createCouponLock(command);
 
 		assertThat(result).isTrue();
 
@@ -55,9 +55,9 @@ public class CouponServiceTest {
 	void createCouponFail() {
 
 		CommandCoupon command = new CommandCoupon("hanghae", 999);
-		when(couponRepository.findById(999)).thenReturn(Optional.empty());
+		when(couponRepository.findByIdForUpdate(999)).thenReturn(Optional.empty());
 
-		assertThatThrownBy(() -> couponService.createCoupon(command)).isInstanceOf(CustomException.class)
+		assertThatThrownBy(() -> couponService.createCouponLock(command)).isInstanceOf(CustomException.class)
 				.hasMessageContaining(ErrorEnum.NOT_FOUND_COUPON.getMessage());
 	}
 
@@ -68,10 +68,10 @@ public class CouponServiceTest {
 		CommandCoupon command = new CommandCoupon("user123", 1);
 		Coupon coupon = mock(Coupon.class);
 
-		when(couponRepository.findById(1)).thenReturn(Optional.of(coupon));
+		when(couponRepository.findByIdForUpdate(1)).thenReturn(Optional.of(coupon));
 		doThrow(new CustomException(ErrorEnum.COUPON_STOCK_EMPTY)).when(coupon).stockCheck();
 
-		assertThatThrownBy(() -> couponService.createCoupon(command)).isInstanceOf(CustomException.class)
+		assertThatThrownBy(() -> couponService.createCouponLock(command)).isInstanceOf(CustomException.class)
 																	 .hasMessageContaining(ErrorEnum.COUPON_STOCK_EMPTY.getMessage());
 	}
 

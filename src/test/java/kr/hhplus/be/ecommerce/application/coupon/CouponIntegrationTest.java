@@ -68,7 +68,7 @@ public class CouponIntegrationTest {
 
 		CommandCoupon commandCoupon = new CommandCoupon(userId, couponId);
 		
-		boolean result = couponService.createCoupon(commandCoupon);
+		boolean result = couponService.createCouponLock(commandCoupon);
 
 		assertThat(result).isTrue();
 	}
