@@ -79,7 +79,7 @@ public class CouponConcurrencyTest {
 		for (String uid : userIds) {
 			executorService.submit(() -> {
 				try {
-					couponService.createCoupon(commandCoupon);
+					couponService.createCouponLock(commandCoupon);
 				} catch (Throwable t) {
 					errors.add(t);
 				} finally {

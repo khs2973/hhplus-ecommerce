@@ -28,6 +28,7 @@ import kr.hhplus.be.ecommerce.domain.product.Product;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.domain.user.UserRepository;
+import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 
 @SpringBootTest
 public class OrderConcurrencyTest {
@@ -125,6 +126,6 @@ public class OrderConcurrencyTest {
 
 		// then
 		assertThat(errors).hasSize(1);
-		assertThat(errors.get(0).getMessage()).contains("재고 부족");
+		assertThat(errors.get(0).getMessage()).contains(ErrorEnum.NOT_ENOUGH_PRODUCT.getMessage());
 	}
 }
