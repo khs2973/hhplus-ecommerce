@@ -2,11 +2,11 @@ package kr.hhplus.be.ecommerce.application.order;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-import kr.hhplus.be.ecommerce.application.coupon.CouponService;
 import kr.hhplus.be.ecommerce.application.point.PointService;
 import kr.hhplus.be.ecommerce.application.user.UserService;
 import kr.hhplus.be.ecommerce.domain.order.Order;
@@ -15,7 +15,6 @@ import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
 import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
 import kr.hhplus.be.ecommerce.domain.point.PointCommand;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
-import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
 import lombok.RequiredArgsConstructor;
 
@@ -36,9 +35,9 @@ public class OrderFacade {
 		User userInfo = userService.getUser(commandOrder.getUserId());
 		
 		// 포인트 조회
-		UserPoint userPoint = pointService.searchUserPoint(commandOrder.getUserId());
+		Optional<UserPoint> userPoint = pointService.searchUserPoint(commandOrder.getUserId());
 		
-		BigDecimal currentUserPoint = userPoint.getUserPoint();
+		BigDecimal currentUserPoint = userPoint.get().getUserPoint();
 		
 		// 상품 주문, 쿠폰 할인 계산
 		List<OrderProduct> orderProducts = orderService.orderProducts(commandOrder);

@@ -40,7 +40,7 @@ public class OrderService {
 	private final CouponService couponService;
 
 	public Product getProduct(Integer productId) {
-		return productRepository.findByProductId(productId)
+		return productRepository.findByProductIdForUpdate(productId)
 								.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
 	}
 
@@ -85,28 +85,19 @@ public class OrderService {
 		
 		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
 
-			// 쿠폰 조회
 			Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
 			
-			// 상품 조회
-//			Product product = getProduct(criteria.getProductId());
-			Product product = productRepository.findByProductIdForUpdate(criteria.getProductId())
-											   .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
+			Product product = getProduct(criteria.getProductId());
 			
-			// 사용자 요청 수량과 상품 재고 검증
 			product.validationProductStock(criteria.getQuantity(), product.getStock());
 			
-			// 상품의 총금액(쿠폰x)
 			BigDecimal productTotalPrice = product.getProductPrice()
 												  .multiply(BigDecimal.valueOf(criteria.getQuantity()));
 			
-			// 상품의 총금액(쿠폰o)
 			BigDecimal discountTotalPrice = coupon.calculateDiscount(productTotalPrice);
 			
-			// 상품 재고 차감
 			productRepository.save(product);
 			
-			// 상품 주문
 			orderProducts.add(OrderProduct.builder()
 										  .productId(product.getProductId())
 										  .couponId(coupon.getCouponId())
@@ -114,6 +105,38 @@ public class OrderService {
 										  .totalPrice(discountTotalPrice)
 										  .productPrice(product.getProductPrice())
 										  .build());
+		}
+		
+		return orderProducts;
+		
+	}
+	public List<OrderProduct> orderProductsLock(CommandOrder commandOrder) {
+		
+		List<OrderProduct> orderProducts = new ArrayList<>();
+		
+		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
+			
+			Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
+			
+			Product product = productRepository.findByProductIdForUpdate(criteria.getProductId())
+					.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
+			
+			product.validationProductStock(criteria.getQuantity(), product.getStock());
+			
+			BigDecimal productTotalPrice = product.getProductPrice()
+					.multiply(BigDecimal.valueOf(criteria.getQuantity()));
+			
+			BigDecimal discountTotalPrice = coupon.calculateDiscount(productTotalPrice);
+			
+			productRepository.save(product);
+			
+			orderProducts.add(OrderProduct.builder()
+					.productId(product.getProductId())
+					.couponId(coupon.getCouponId())
+					.orderQuantity(criteria.getQuantity())
+					.totalPrice(discountTotalPrice)
+					.productPrice(product.getProductPrice())
+					.build());
 		}
 		
 		return orderProducts;

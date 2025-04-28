@@ -51,7 +51,7 @@ public class OrderServiceTest {
 	@Mock
 	private UserRepository userRepository;
 	
-	@Mock
+	@InjectMocks
 	private UserService userService;
 
 	@Test
@@ -64,9 +64,9 @@ public class OrderServiceTest {
 								 .stock(10)
 								 .build();
 
-		when(productRepository.findByProductId(1)).thenReturn(Optional.of(product));
+		when(productRepository.findByProductIdForUpdate(product.getProductId())).thenReturn(Optional.of(product));
 
-		Product result = orderService.getProduct(1);
+		Product result = orderService.getProduct(product.getProductId());
 
 		assertThat(result).isNotNull();
 		assertThat(result.getProductName()).isEqualTo("상품");
@@ -75,12 +75,18 @@ public class OrderServiceTest {
 	@Test
 	@DisplayName("사용자 조회 성공")
 	void validateUser_success() {
-		User user = new User("hanghae", "서울시 광진구", LocalDateTime.now());
-		when(userRepository.findByUserId("hanghae")).thenReturn(Optional.of(user));
+		
+		User user = User.builder()
+						.userId("hanghae")
+						.address("서울시 광진구")
+						.cdate(LocalDateTime.now())
+						.build();
+		
+		when(userRepository.findByUserId(user.getUserId())).thenReturn(Optional.of(user));
 
-		User result = userService.getUser("hanghae");
+		User result = userService.getUser(user.getUserId());
 
-		assertThat(result.getAddress()).isEqualTo("서울시 광진구");
+		assertThat(result.getAddress()).isEqualTo(user.getAddress());
 	}
 
 	@Test

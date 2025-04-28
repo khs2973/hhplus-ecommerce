@@ -30,6 +30,8 @@ public class ProductServiceIntegrationTest {
 	@Autowired
 	private ProductService productService;
 	
+	private Integer productId;
+	
 	@BeforeEach
 	void setUp() {
 		Product product = Product.builder()
@@ -41,18 +43,19 @@ public class ProductServiceIntegrationTest {
 								 .build();
 
 		productRepository.save(product);
+		productId = product.getProductId();
 	}
 
 	@Test
 	@DisplayName("상품 조회 성공 (상품이 존재할 경우)")
 	void successGetProduct() {
 		
-		CommandProduct command = new CommandProduct(1);
+		CommandProduct command = new CommandProduct(productId);
 
 		InfoProduct result = productService.getProduct(command);
 
 		assertThat(result).isNotNull();
-		assertThat(result.getProductId()).isEqualTo(1);
+		assertThat(result.getProductId()).isEqualTo(productId);
 		assertThat(result.getProductName()).isEqualTo("상품1");
 		
 	}

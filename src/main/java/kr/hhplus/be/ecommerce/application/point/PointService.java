@@ -1,6 +1,7 @@
 package kr.hhplus.be.ecommerce.application.point;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,6 @@ public class PointService {
 		String userId = pointCommand.getUserId();
 		BigDecimal amount = pointCommand.getUserPoint();
 		
-//		UserPoint userPoint = userPointRepository.findByUserId(userId);
 		UserPoint userPoint = userPointRepository.findByUserIdForUpdate(userId)
 												 .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_USER));
 
@@ -61,8 +61,8 @@ public class PointService {
 		return true;
 	}
 	
-	public UserPoint searchUserPoint(String userId) {
-		return userPointRepository.findByUserId(userId);
+	public Optional<UserPoint> searchUserPoint(String userId) {
+		return userPointRepository.findByUserIdForUpdate(userId);
 	}
 
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -106,7 +107,7 @@ public class PointServiceTest {
 		PointRequest pointRequest = new PointRequest(userId, currentPoint);
 		PointCommand.Use useCommand = pointRequest.toUseCommand();
 
-		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
+		when(userPointRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(userPoint));
 
 		boolean result = pointService.usePoint(useCommand);
 
@@ -122,17 +123,17 @@ public class PointServiceTest {
 	void failUserPoint() {
 
 		String userId = "hanghae";
+
 		BigDecimal currentPoint = new BigDecimal("500");
 		BigDecimal amountToUse = new BigDecimal("1000");
 
 		UserPoint userPoint = new UserPoint(userId, currentPoint);
 		PointCommand.Use useCommand = PointCommand.Use.of(userId, amountToUse);
 
-		when(userPointRepository.findByUserId(userId)).thenReturn(userPoint);
+		when(userPointRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(userPoint));
 
-		assertThatThrownBy(() -> pointService.usePoint(useCommand))
-											 .isInstanceOf(CustomException.class)
-											 .hasMessageContaining(ErrorEnum.NOT_ENOUGH_POINT.getMessage());
+		assertThatThrownBy(() -> pointService.usePoint(useCommand)).isInstanceOf(CustomException.class)
+																   .hasMessageContaining(ErrorEnum.NOT_ENOUGH_POINT.getMessage());
 	}
 
 }
