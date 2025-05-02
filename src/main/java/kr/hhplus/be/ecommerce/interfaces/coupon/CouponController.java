@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import kr.hhplus.be.ecommerce.application.coupon.CouponService;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand.CommandCoupon;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand;
 import kr.hhplus.be.ecommerce.interfaces.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +21,7 @@ public class CouponController {
 	
 	@PostMapping("/createCoupon")
 	public ApiResponse<?> createCoupon(@RequestBody CoupontRequest couponRequest) {
-		CommandCoupon couponCommand = CommandCoupon.of(couponRequest.getUserId(), couponRequest.getCouponId());
+		CouponCommand.Create couponCommand = CouponCommand.Create.of(couponRequest.getUserId(), couponRequest.getCouponId());
 		couponService.createCouponLock(couponCommand);
 		return ApiResponse.success();
 	}

@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand.CommandCoupon;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.domain.user.UserRepository;
@@ -59,7 +59,7 @@ public class CouponIntegrationTest {
 	@DisplayName("쿠폰 발급 성공")
 	void createCouponSuccess() {
 
-		CommandCoupon commandCoupon = new CommandCoupon(userId, couponId);
+		CouponCommand.Create commandCoupon = new CouponCommand.Create(userId, couponId);
 		
 		boolean result = couponService.createCouponLock(commandCoupon);
 

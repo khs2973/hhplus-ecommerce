@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand.CommandCoupon;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.domain.user.UserRepository;
@@ -75,7 +75,7 @@ public class CouponConcurrencyTest {
 		}
 
 		List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
-		CommandCoupon commandCoupon = CommandCoupon.of(userId, couponId);
+		CouponCommand.Create commandCoupon = CouponCommand.Create.of(userId, couponId);
 		for (String uid : userIds) {
 			executorService.submit(() -> {
 				try {
