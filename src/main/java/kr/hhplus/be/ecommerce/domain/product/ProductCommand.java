@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 public class ProductCommand {
 
 	@Getter
-	public static class CommandProduct {
+	public static class Create {
 		private final Integer productId;
 		
-		public CommandProduct(Integer productId) {
+		public Create(Integer productId) {
 			this.productId = productId;
 		}
 		
-		public static CommandProduct of(Integer productId) {
-			return new CommandProduct(productId);
+		public static Create of(Integer productId) {
+			return new Create(productId);
 		}
 	}
 	
