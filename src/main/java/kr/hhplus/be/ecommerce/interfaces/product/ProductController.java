@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.hhplus.be.ecommerce.application.product.ProductService;
 import kr.hhplus.be.ecommerce.domain.product.ProductCommand;
-import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
+import kr.hhplus.be.ecommerce.domain.product.ProductInfo;
 import kr.hhplus.be.ecommerce.interfaces.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +24,7 @@ public class ProductController {
 		
 		ProductCommand.Create productCommand = productRequest.toProductCommand();
 		
-		InfoProduct infoProduct = productService.getProduct(productCommand);
+		ProductInfo.Create infoProduct = productService.getProduct(productCommand);
 		
 		return ApiResponse.success(ProductResponse.from(infoProduct));
 

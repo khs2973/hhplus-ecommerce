@@ -25,7 +25,7 @@ import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.product.Product;
 import kr.hhplus.be.ecommerce.domain.product.ProductCommand;
-import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
+import kr.hhplus.be.ecommerce.domain.product.ProductInfo;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.domain.user.UserRepository;
@@ -103,7 +103,7 @@ public class OrderServiceIntegrationTest {
 		
 		ProductCommand.Create command = new ProductCommand.Create(productId);
 
-		InfoProduct result = productService.getProduct(command);
+		ProductInfo.Create result = productService.getProduct(command);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getProductId()).isEqualTo(productId);
