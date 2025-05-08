@@ -44,14 +44,6 @@ public class OrderFacade {
 										.map(c -> redissonClient.getLock("lock:product:" + c.getProductId()))
 										.collect(Collectors.toList());
 		
-		// 회원 조회
-		User userInfo = userService.getUser(orderCommand.getUserId());
-		
-		// 포인트 조회
-		UserPoint userPoint = pointService.searchUserPoint(orderCommand.getUserId());
-		
-		BigDecimal currentUserPoint = userPoint.getUserPoint();
-		
 		try {
 			
 			for (RLock lock : locks) {
@@ -61,6 +53,14 @@ public class OrderFacade {
 				}
 			}
 
+			// 회원 조회
+			User userInfo = userService.getUser(orderCommand.getUserId());
+			
+			// 포인트 조회
+			UserPoint userPoint = pointService.searchUserPoint(orderCommand.getUserId());
+			
+			BigDecimal currentUserPoint = userPoint.getUserPoint();
+			
 			// 상품 주문, 쿠폰 할인 계산
 			List<OrderProduct> orderProducts = orderService.orderProducts(orderCommand);
 			
