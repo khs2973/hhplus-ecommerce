@@ -47,17 +47,14 @@ public class Product {
 	private LocalDateTime udate;
 	
 	// 상품 재고
-	public void validationProductStock(Integer quantity, Integer stock) {
+	public void validationProductStock(Integer quantity) {
 		
-		if(quantity > stock) {
+		if(quantity > this.stock || this.stock <= 0) {
 			throw new CustomException(ErrorEnum.NOT_ENOUGH_PRODUCT);
 		}
 		
 		this.stock -= quantity;
 		
 	}
-	
-	
-	
 	
 }
