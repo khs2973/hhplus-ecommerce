@@ -9,6 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorEnum {
 
+	FAIL_GET_LOCK(HttpStatus.BAD_REQUEST, "락을 획득하는데 실패했습니다."),
 	NOT_ENOUGH_PRODUCT(HttpStatus.BAD_REQUEST, "해당 상품의 재고가 부족합니다."),
 	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "해당 상품이 존재하지 않습니다."),
 	CHARGE_POINT_MAX(HttpStatus.BAD_REQUEST, "최대 충전 금액 한도를 초과하셨습니다."),

@@ -29,4 +29,8 @@ public class ProductRepositoryImpl implements ProductRepository{
  		return productJpaRepository.findByProductIdForUpdate(productId);
  	}
 	
+	@Override
+	public void saveAndFlush(Product product) {
+		productJpaRepository.saveAndFlush(product);
+	}
 }
