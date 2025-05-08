@@ -43,6 +43,12 @@ dependencies {
 	
     // DB
 	runtimeOnly("com.mysql:mysql-connector-j")
+	
+	// querydsl
+	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+	annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -52,6 +58,16 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	
 	testImplementation ("org.assertj:assertj-core:3.25.3")
+}
+
+val querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+sourceSets["main"].java {
+    srcDirs("src/main/java", querydslDir)
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.generatedSourceOutputDirectory = querydslDir
 }
 
 tasks.withType<Test> {
