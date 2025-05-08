@@ -40,7 +40,7 @@ public class OrderService {
 	private final CouponService couponService;
 
 	public Product getProduct(Integer productId) {
-		return productRepository.findByProductIdForUpdate(productId)
+		return productRepository.findByProductId(productId)
 								.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
 	}
 
@@ -54,7 +54,7 @@ public class OrderService {
 						   .cdate(LocalDateTime.now())
 						   .build();
 
-		orderRepository.save(order);
+		orderRepository.saveAndFlush(order);
 		
 		return order;
 	}
@@ -83,69 +83,36 @@ public class OrderService {
 		
 		List<OrderProduct> orderProducts = new ArrayList<>();
 		
-		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
+		Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
 
-			Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
+		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
 			
-			Product product = getProduct(criteria.getProductId());
+			Product product = productRepository.findByProductId(criteria.getProductId())
+											   .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
+
+			product.validationProductStock(criteria.getQuantity());
 			
-			product.validationProductStock(criteria.getQuantity(), product.getStock());
-			
+			productRepository.saveAndFlush(product);
+
 			BigDecimal productTotalPrice = product.getProductPrice()
 												  .multiply(BigDecimal.valueOf(criteria.getQuantity()));
 			
 			BigDecimal discountTotalPrice = coupon.calculateDiscount(productTotalPrice);
-			
-			productRepository.save(product);
-			
+
 			orderProducts.add(OrderProduct.builder()
 										  .productId(product.getProductId())
 										  .couponId(coupon.getCouponId())
 										  .orderQuantity(criteria.getQuantity())
-										  .totalPrice(discountTotalPrice)
 										  .productPrice(product.getProductPrice())
+										  .totalPrice(discountTotalPrice)
 										  .build());
 		}
-		
 		return orderProducts;
-		
-	}
-	public List<OrderProduct> orderProductsLock(OrderCommand.Create commandOrder) {
-		
-		List<OrderProduct> orderProducts = new ArrayList<>();
-		
-		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
-			
-			Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
-			
-			Product product = productRepository.findByProductIdForUpdate(criteria.getProductId())
-					.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
-			
-			product.validationProductStock(criteria.getQuantity(), product.getStock());
-			
-			BigDecimal productTotalPrice = product.getProductPrice()
-					.multiply(BigDecimal.valueOf(criteria.getQuantity()));
-			
-			BigDecimal discountTotalPrice = coupon.calculateDiscount(productTotalPrice);
-			
-			productRepository.save(product);
-			
-			orderProducts.add(OrderProduct.builder()
-					.productId(product.getProductId())
-					.couponId(coupon.getCouponId())
-					.orderQuantity(criteria.getQuantity())
-					.totalPrice(discountTotalPrice)
-					.productPrice(product.getProductPrice())
-					.build());
-		}
-		
-		return orderProducts;
-		
 	}
 	
 	public BigDecimal caculateTotalPrice(List<OrderProduct> products) {
 		return products.stream()
-						.map(OrderProduct::getTotalPrice)
-						.reduce(BigDecimal.ZERO, BigDecimal::add);
+					   .map(OrderProduct::getTotalPrice)
+					   .reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 }

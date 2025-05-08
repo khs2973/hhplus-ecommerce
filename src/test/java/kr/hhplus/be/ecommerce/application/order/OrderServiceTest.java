@@ -64,7 +64,7 @@ public class OrderServiceTest {
 								 .stock(10)
 								 .build();
 
-		when(productRepository.findByProductIdForUpdate(product.getProductId())).thenReturn(Optional.of(product));
+		when(productRepository.findByProductId(product.getProductId())).thenReturn(Optional.of(product));
 
 		Product result = orderService.getProduct(product.getProductId());
 
