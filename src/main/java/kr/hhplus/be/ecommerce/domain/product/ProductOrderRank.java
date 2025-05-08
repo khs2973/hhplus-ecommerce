@@ -8,5 +8,5 @@ import lombok.Getter;
 public class ProductOrderRank {
 	private Integer productId;
 	private String productName;
-	private Long totalQuantity;
+	private Integer totalQuantity;
 }
