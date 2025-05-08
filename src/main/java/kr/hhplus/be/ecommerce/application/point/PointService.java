@@ -61,8 +61,8 @@ public class PointService {
 		return true;
 	}
 	
-	public Optional<UserPoint> searchUserPoint(String userId) {
-		return userPointRepository.findByUserIdForUpdate(userId);
+	public UserPoint searchUserPoint(String userId) {
+		return userPointRepository.findByUserId(userId);
 	}
 
 }
