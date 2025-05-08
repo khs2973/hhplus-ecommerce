@@ -2,7 +2,7 @@ package kr.hhplus.be.ecommerce.interfaces.product;
 
 import java.math.BigDecimal;
 
-import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
+import kr.hhplus.be.ecommerce.domain.product.ProductInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class ProductResponse {
 	private BigDecimal productPrice;
 	private Integer stock;
 	
-	public static ProductResponse from (InfoProduct infoProduct) {
+	public static ProductResponse from (ProductInfo.Create infoProduct) {
 		return new ProductResponse(infoProduct.getProductId()
 								 , infoProduct.getProductName()
 								 , infoProduct.getProductPrice()

@@ -41,7 +41,4 @@ public class Order {
 	@Column(name = "order_state")
 	private Integer orderState;
 	
-	
-	
-	
 }
