@@ -1,7 +1,6 @@
 package kr.hhplus.be.ecommerce.domain.coupon;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;

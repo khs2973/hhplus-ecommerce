@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand.CommandCoupon;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
 import kr.hhplus.be.ecommerce.domain.coupon.UserCoupon;
 import kr.hhplus.be.ecommerce.domain.coupon.UserCouponRepository;
@@ -53,10 +53,8 @@ public class CouponService {
 	}
 	
 	@Transactional
-	public Boolean createCoupon(CommandCoupon command) {
+	public Boolean createCouponLock(CouponCommand.Create command) {
 		
-//		Coupon coupon = couponRepository.findById(command.getCouponId())
-//										.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_COUPON));
 		Coupon coupon = couponRepository.findByIdForUpdate(command.getCouponId())
 										.orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_COUPON));
 		coupon.stockCheck();

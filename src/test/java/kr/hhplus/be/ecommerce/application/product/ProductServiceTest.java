@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import kr.hhplus.be.ecommerce.domain.product.Product;
-import kr.hhplus.be.ecommerce.domain.product.ProductCommand.CommandProduct;
+import kr.hhplus.be.ecommerce.domain.product.ProductCommand;
 import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
 
@@ -45,7 +45,7 @@ public class ProductServiceTest {
 	void successGetProduct() {
 		
 		Integer productId = 1;
-		CommandProduct command = new CommandProduct(productId);
+		ProductCommand.Create command = new ProductCommand.Create(productId);
 
 		Product product = Product.builder()
 								 .productId(productId)

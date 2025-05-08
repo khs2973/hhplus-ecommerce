@@ -2,7 +2,6 @@ package kr.hhplus.be.ecommerce.application.coupon;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDateTime;
 
@@ -14,13 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand.CommandCoupon;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
-import kr.hhplus.be.ecommerce.domain.coupon.UserCouponRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
 import kr.hhplus.be.ecommerce.domain.user.UserRepository;
-import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
-import kr.hhplus.be.ecommerce.interfaces.common.ErrorEnum;
 
 @SpringBootTest
 @Transactional
@@ -34,9 +30,6 @@ public class CouponIntegrationTest {
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
-	private UserCouponRepository userCouponRepository;
 
 	private String userId;
 	private Integer couponId;
@@ -66,9 +59,9 @@ public class CouponIntegrationTest {
 	@DisplayName("쿠폰 발급 성공")
 	void createCouponSuccess() {
 
-		CommandCoupon commandCoupon = new CommandCoupon(userId, couponId);
+		CouponCommand.Create commandCoupon = new CouponCommand.Create(userId, couponId);
 		
-		boolean result = couponService.createCoupon(commandCoupon);
+		boolean result = couponService.createCouponLock(commandCoupon);
 
 		assertThat(result).isTrue();
 	}

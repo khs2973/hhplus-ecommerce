@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
-import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand.CommandCoupon;
+import kr.hhplus.be.ecommerce.domain.coupon.CouponCommand;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
 import kr.hhplus.be.ecommerce.domain.coupon.UserCouponRepository;
 import kr.hhplus.be.ecommerce.interfaces.common.CustomException;
@@ -39,12 +39,12 @@ public class CouponServiceTest {
 	@DisplayName("쿠폰 발급 성공")
 	void createCouponSuccess() {
 
-		CommandCoupon command = new CommandCoupon("hanghae", 1);
+		CouponCommand.Create command = new CouponCommand.Create("hanghae", 1);
 		Coupon coupon = Mockito.mock(Coupon.class);
 
-		when(couponRepository.findById(1)).thenReturn(Optional.of(coupon));
+		when(couponRepository.findByIdForUpdate(1)).thenReturn(Optional.of(coupon));
 
-		Boolean result = couponService.createCoupon(command);
+		Boolean result = couponService.createCouponLock(command);
 
 		assertThat(result).isTrue();
 
@@ -54,10 +54,10 @@ public class CouponServiceTest {
 	@DisplayName("쿠폰이 존재하지 않을 경우 예외 발생")
 	void createCouponFail() {
 
-		CommandCoupon command = new CommandCoupon("hanghae", 999);
-		when(couponRepository.findById(999)).thenReturn(Optional.empty());
+		CouponCommand.Create command = new CouponCommand.Create("hanghae", 999);
+		when(couponRepository.findByIdForUpdate(999)).thenReturn(Optional.empty());
 
-		assertThatThrownBy(() -> couponService.createCoupon(command)).isInstanceOf(CustomException.class)
+		assertThatThrownBy(() -> couponService.createCouponLock(command)).isInstanceOf(CustomException.class)
 				.hasMessageContaining(ErrorEnum.NOT_FOUND_COUPON.getMessage());
 	}
 
@@ -65,13 +65,13 @@ public class CouponServiceTest {
 	@DisplayName("쿠폰 재고가 부족할 경우 예외 발생")
 	void createCouponStockFail() {
 		
-		CommandCoupon command = new CommandCoupon("user123", 1);
+		CouponCommand.Create command = new CouponCommand.Create("user123", 1);
 		Coupon coupon = mock(Coupon.class);
 
-		when(couponRepository.findById(1)).thenReturn(Optional.of(coupon));
+		when(couponRepository.findByIdForUpdate(1)).thenReturn(Optional.of(coupon));
 		doThrow(new CustomException(ErrorEnum.COUPON_STOCK_EMPTY)).when(coupon).stockCheck();
 
-		assertThatThrownBy(() -> couponService.createCoupon(command)).isInstanceOf(CustomException.class)
+		assertThatThrownBy(() -> couponService.createCouponLock(command)).isInstanceOf(CustomException.class)
 																	 .hasMessageContaining(ErrorEnum.COUPON_STOCK_EMPTY.getMessage());
 	}
 

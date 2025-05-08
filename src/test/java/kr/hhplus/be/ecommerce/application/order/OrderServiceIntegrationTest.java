@@ -19,12 +19,12 @@ import kr.hhplus.be.ecommerce.application.product.ProductService;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponEnum;
 import kr.hhplus.be.ecommerce.domain.coupon.CouponRepository;
-import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand;
 import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
 import kr.hhplus.be.ecommerce.domain.point.UserPoint;
 import kr.hhplus.be.ecommerce.domain.point.UserPointRepository;
 import kr.hhplus.be.ecommerce.domain.product.Product;
-import kr.hhplus.be.ecommerce.domain.product.ProductCommand.CommandProduct;
+import kr.hhplus.be.ecommerce.domain.product.ProductCommand;
 import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
 import kr.hhplus.be.ecommerce.domain.product.ProductRepository;
 import kr.hhplus.be.ecommerce.domain.user.User;
@@ -101,7 +101,7 @@ public class OrderServiceIntegrationTest {
 	@DisplayName("상품 조회 성공 (상품이 존재할 경우)")
 	void successGetProduct() {
 		
-		CommandProduct command = new CommandProduct(productId);
+		ProductCommand.Create command = new ProductCommand.Create(productId);
 
 		InfoProduct result = productService.getProduct(command);
 
@@ -115,7 +115,7 @@ public class OrderServiceIntegrationTest {
 	@DisplayName("상품 조회 실패 (상품이 없을 경우)")
 	void failGetProduct_notFound() {
 		
-		CommandProduct command = new CommandProduct(99);
+		ProductCommand.Create command = new ProductCommand.Create(99);
 
 		assertThatThrownBy(() -> productService.getProduct(command)).isInstanceOf(CustomException.class)
 																	.hasMessageContaining(ErrorEnum.NOT_FOUND_PRODUCT.getMessage());
@@ -126,7 +126,7 @@ public class OrderServiceIntegrationTest {
 	@DisplayName("상품 주문 쿠폰 사용")
 	void createOrderCoupon() {
 
-		CommandOrder command = CommandOrder.of(userId, couponId, List.of(new CriteriaOrderProduct(productId, 1)));
+		OrderCommand.Create command = OrderCommand.Create.of(userId, couponId, List.of(new CriteriaOrderProduct(productId, 1)));
 
 		InfoOrder result = orderFacade.createOrder(command);
 

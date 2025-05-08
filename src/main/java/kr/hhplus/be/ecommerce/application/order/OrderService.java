@@ -11,7 +11,7 @@ import kr.hhplus.be.ecommerce.application.coupon.CouponService;
 import kr.hhplus.be.ecommerce.application.order.OrderCriteria.CriteriaOrderProduct;
 import kr.hhplus.be.ecommerce.domain.coupon.Coupon;
 import kr.hhplus.be.ecommerce.domain.order.Order;
-import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand;
 import kr.hhplus.be.ecommerce.domain.order.OrderHistory;
 import kr.hhplus.be.ecommerce.domain.order.OrderHistoryRepository;
 import kr.hhplus.be.ecommerce.domain.order.OrderProduct;
@@ -54,7 +54,7 @@ public class OrderService {
 						   .cdate(LocalDateTime.now())
 						   .build();
 
-		orderRepository.save(order);
+		orderRepository.saveAndFlush(order);
 		
 		return order;
 	}
@@ -79,50 +79,40 @@ public class OrderService {
 	
 	}
 	
-	public List<OrderProduct> orderProducts(CommandOrder commandOrder) {
+	public List<OrderProduct> orderProducts(OrderCommand.Create commandOrder) {
 		
 		List<OrderProduct> orderProducts = new ArrayList<>();
 		
-		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
+		Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
 
-			// 쿠폰 조회
-			Coupon coupon = couponService.getCoupon(commandOrder.getCouponId());
+		for (CriteriaOrderProduct criteria : commandOrder.getCriteriaOrderProduct()) {
 			
-			// 상품 조회
-//			Product product = getProduct(criteria.getProductId());
-			Product product = productRepository.findByProductIdForUpdate(criteria.getProductId())
+			Product product = productRepository.findByProductId(criteria.getProductId())
 											   .orElseThrow(() -> new CustomException(ErrorEnum.NOT_FOUND_PRODUCT));
+
+			product.validationProductStock(criteria.getQuantity());
 			
-			// 사용자 요청 수량과 상품 재고 검증
-			product.validationProductStock(criteria.getQuantity(), product.getStock());
-			
-			// 상품의 총금액(쿠폰x)
+			productRepository.saveAndFlush(product);
+
 			BigDecimal productTotalPrice = product.getProductPrice()
 												  .multiply(BigDecimal.valueOf(criteria.getQuantity()));
 			
-			// 상품의 총금액(쿠폰o)
 			BigDecimal discountTotalPrice = coupon.calculateDiscount(productTotalPrice);
-			
-			// 상품 재고 차감
-			productRepository.save(product);
-			
-			// 상품 주문
+
 			orderProducts.add(OrderProduct.builder()
 										  .productId(product.getProductId())
 										  .couponId(coupon.getCouponId())
 										  .orderQuantity(criteria.getQuantity())
-										  .totalPrice(discountTotalPrice)
 										  .productPrice(product.getProductPrice())
+										  .totalPrice(discountTotalPrice)
 										  .build());
 		}
-		
 		return orderProducts;
-		
 	}
 	
 	public BigDecimal caculateTotalPrice(List<OrderProduct> products) {
 		return products.stream()
-						.map(OrderProduct::getTotalPrice)
-						.reduce(BigDecimal.ZERO, BigDecimal::add);
+					   .map(OrderProduct::getTotalPrice)
+					   .reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 }

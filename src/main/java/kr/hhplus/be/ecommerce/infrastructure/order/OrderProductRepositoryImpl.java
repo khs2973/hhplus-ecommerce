@@ -1,8 +1,6 @@
 package kr.hhplus.be.ecommerce.infrastructure.order;
 
 import kr.hhplus.be.ecommerce.domain.order.OrderProductRepository;
-import kr.hhplus.be.ecommerce.domain.point.PointHistoryRepository;
-import kr.hhplus.be.ecommerce.infrastructure.point.UserPointJpaRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

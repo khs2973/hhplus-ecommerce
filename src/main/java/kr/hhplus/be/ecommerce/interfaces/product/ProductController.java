@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.hhplus.be.ecommerce.application.product.ProductService;
-import kr.hhplus.be.ecommerce.domain.product.ProductCommand.CommandProduct;
+import kr.hhplus.be.ecommerce.domain.product.ProductCommand;
 import kr.hhplus.be.ecommerce.domain.product.ProductInfo.InfoProduct;
 import kr.hhplus.be.ecommerce.interfaces.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class ProductController {
 	@GetMapping("/product")
 	public ApiResponse<?> getProduct(ProductRequest productRequest) {
 		
-		CommandProduct productCommand = productRequest.toProductCommand();
+		ProductCommand.Create productCommand = productRequest.toProductCommand();
 		
 		InfoProduct infoProduct = productService.getProduct(productCommand);
 		

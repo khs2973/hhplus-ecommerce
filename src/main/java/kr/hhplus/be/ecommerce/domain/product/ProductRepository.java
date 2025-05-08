@@ -10,4 +10,5 @@ public interface ProductRepository {
 	
 	Optional<Product> findByProductIdForUpdate(Integer productId);
 	
+	void saveAndFlush(Product product);
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.hhplus.be.ecommerce.application.order.OrderFacade;
-import kr.hhplus.be.ecommerce.domain.order.OrderCommand.CommandOrder;
+import kr.hhplus.be.ecommerce.domain.order.OrderCommand;
 import kr.hhplus.be.ecommerce.domain.order.OrderInfo.InfoOrder;
 import kr.hhplus.be.ecommerce.interfaces.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,9 @@ public class OrderController {
 	
 	@PostMapping("/order")
 	public ApiResponse<?> createOrder(@RequestBody OrderRequest orderRequest) {
-		CommandOrder orderCommand = CommandOrder.of(orderRequest.getUserId()
-												  , orderRequest.getCouponId()
-												  , orderRequest.getCriteriaOrderProduct());
+		OrderCommand.Create orderCommand = OrderCommand.Create.of(orderRequest.getUserId()
+																, orderRequest.getCouponId()
+																, orderRequest.getCriteriaOrderProduct());
 		InfoOrder infoOrder = orderFacade.createOrder(orderCommand);
 		return ApiResponse.success(OrderResponse.from(infoOrder));
 	}
